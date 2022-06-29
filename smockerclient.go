@@ -7,7 +7,7 @@ import (
 )
 
 type Mock interface {
-	ToJson() []byte
+	ToJsonDefinition() []byte
 }
 
 type Instance struct {
@@ -41,12 +41,14 @@ func (i Instance) StartSession(name string) error {
 		return fmt.Errorf("smockerclient unable to send request to start a new session %w", err)
 	}
 
+	// TODO check status code
+
 	return nil
 }
 
 func (i Instance) AddMock(mock Mock) error {
 	url := i.url + "/mocks"
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(mock.ToJson()))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(mock.ToJsonDefinition()))
 	if err != nil {
 		return fmt.Errorf("smockerclient unable to create request to add a new mock %w", err)
 	}
@@ -55,6 +57,8 @@ func (i Instance) AddMock(mock Mock) error {
 	if err != nil {
 		return fmt.Errorf("smockerclient unable to send request to add a new mock %w", err)
 	}
+
+	// TODO check status code
 
 	return nil
 }

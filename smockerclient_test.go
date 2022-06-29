@@ -78,6 +78,6 @@ type FakeMock struct {
 	Json string
 }
 
-func (fm FakeMock) ToJson() []byte {
+func (fm FakeMock) ToJsonDefinition() []byte {
 	return []byte(fm.Json)
 }
