@@ -1,6 +1,6 @@
 package mock
 
-type Mock struct {}
+type Mock struct{}
 
 func (m Mock) ToJsonDefinition() []byte {
 	return nil
