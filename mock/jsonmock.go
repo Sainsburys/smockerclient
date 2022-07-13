@@ -13,3 +13,7 @@ func NewJsonMock(json string) JsonMock {
 func (jm JsonMock) ToJsonDefinition() []byte {
 	return []byte(jm.json)
 }
+
+func (jm JsonMock) MarshalJSON() ([]byte, error) {
+	return []byte(jm.json), nil
+}
