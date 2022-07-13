@@ -109,9 +109,5 @@ type FakeMock struct {
 }
 
 func (fm FakeMock) MarshalJSON() ([]byte, error) {
-	return fm.ToJsonDefinition(), nil
-}
-
-func (fm FakeMock) ToJsonDefinition() []byte {
-	return []byte(fm.Json)
+	return []byte(fm.Json), nil
 }

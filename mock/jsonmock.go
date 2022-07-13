@@ -1,17 +1,15 @@
 package mock
 
+import "github.com/churmd/smockerclient"
+
 type JsonMock struct {
 	json string
 }
 
-func NewJsonMock(json string) JsonMock {
+func NewJsonMock(json string) smockerclient.Mock {
 	return JsonMock{
 		json: json,
 	}
-}
-
-func (jm JsonMock) ToJsonDefinition() []byte {
-	return []byte(jm.json)
 }
 
 func (jm JsonMock) MarshalJSON() ([]byte, error) {

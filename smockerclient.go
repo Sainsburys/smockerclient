@@ -8,10 +8,7 @@ import (
 	"net/http"
 )
 
-type Mock interface {
-	json.Marshaler
-	ToJsonDefinition() []byte
-}
+type Mock json.Marshaler
 
 type Instance struct {
 	url        string

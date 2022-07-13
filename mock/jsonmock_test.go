@@ -12,8 +12,9 @@ func TestJsonMockReturnsGivenJson(t *testing.T) {
 	json := jsonForMock()
 
 	jsonMock := mock.NewJsonMock(json)
-	definition := jsonMock.ToJsonDefinition()
+	definition, err := jsonMock.MarshalJSON()
 
+	assert.NoError(t, err)
 	assert.JSONEq(t, json, string(definition))
 }
 
