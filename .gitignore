@@ -1,6 +1,9 @@
 # VScode
 .vscode
 
+# Intellij
+.idea
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
