@@ -44,6 +44,37 @@ func TestStartSession(t *testing.T) {
 	assert.Equal(t, 1, serverCallCount)
 }
 
+func TestStartSessionWithNameThatNeedsUrlEscaping(t *testing.T) {
+	serverCallCount := 0
+	sessionName := `test !@£$%^&*()`
+
+	server := httptest.NewServer(
+		http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				serverCallCount++
+
+				assert.Equal(t, http.MethodPost, r.Method)
+				assert.Equal(t, "/sessions", r.URL.Path)
+				actualSessionName := r.URL.Query().Get("name")
+				assert.Equal(t, sessionName, actualSessionName)
+
+				resp := `{
+					"id": "1d6d264b-4d13-4e0b-a51e-e44fc80eca9f",
+					"name": "` + sessionName + `"
+				  }`
+				w.Write([]byte(resp))
+			},
+		),
+	)
+	defer server.Close()
+
+	smockerInstance := smockerclient.NewInstance(server.URL)
+	err := smockerInstance.StartSession(sessionName)
+
+	assert.NoError(t, err)
+	assert.Equal(t, 1, serverCallCount)
+}
+
 func TestAddMock(t *testing.T) {
 	serverCallCount := 0
 	jsonMock := `{"example": 1234}`

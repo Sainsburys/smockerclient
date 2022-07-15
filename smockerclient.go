@@ -30,9 +30,7 @@ func NewInstance(url string) Instance {
 }
 
 func (i Instance) StartSession(name string) error {
-	// TODO handle query encoding
-	url := i.url + "/sessions?name=" + name
-	req, err := http.NewRequest(http.MethodPost, url, nil)
+	req, err := i.createSessionRequest(name)
 	if err != nil {
 		return fmt.Errorf("smockerclient unable to create request to start a new session %w", err)
 	}
@@ -42,9 +40,21 @@ func (i Instance) StartSession(name string) error {
 		return fmt.Errorf("smockerclient unable to send request to start a new session %w", err)
 	}
 
-	// TODO check status code
-
 	return nil
+}
+
+func (i Instance) createSessionRequest(name string) (*http.Request, error) {
+	url := i.url + "/sessions"
+	req, err := http.NewRequest(http.MethodPost, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	query := req.URL.Query()
+	query.Add("name", name)
+	req.URL.RawQuery = query.Encode()
+
+	return req, nil
 }
 
 func (i Instance) AddMock(mock Mock) error {
