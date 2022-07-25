@@ -4,37 +4,45 @@ import (
 	"strings"
 )
 
-
 type Request struct {
-	Method string `json:"method"`
-	Path string `json:"path"`
-	QueryParams QueryParams `json:"query_params,omitempty"`
+	Method      string   `json:"method"`
+	Path        string   `json:"path"`
+	QueryParams MultiMap `json:"query_params,omitempty"`
+	Headers     MultiMap `json:"headers,omitempty"`
 }
 
 func NewRequest(method, path string) Request {
 	return Request{
 		Method: method,
-		Path: path,
+		Path:   path,
 	}
 }
 
 func (r *Request) AddQueryParam(key, value string) {
 	if r.QueryParams == nil {
-		r.QueryParams = QueryParams{}
+		r.QueryParams = MultiMap{}
 	}
 
 	r.QueryParams[key] = value
 }
 
-type QueryParams map[string]string
+func (r *Request) AddHeader(key, value string) {
+	if r.Headers == nil {
+		r.Headers = MultiMap{}
+	}
 
-func (qp QueryParams) MarshalJSON() ([]byte, error) {
+	r.Headers[key] = value
+}
+
+type MultiMap map[string]string
+
+func (qp MultiMap) MarshalJSON() ([]byte, error) {
 	paramsAsJson := qp.combineKeyValuePairsForJson()
 	json := "{" + paramsAsJson + "}"
 	return []byte(json), nil
 }
 
-func (qp QueryParams) combineKeyValuePairsForJson() string {
+func (qp MultiMap) combineKeyValuePairsForJson() string {
 	params := make([]string, 0)
 
 	for key, value := range qp {
