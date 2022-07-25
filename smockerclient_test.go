@@ -75,6 +75,28 @@ func TestStartSessionWithNameThatNeedsUrlEscaping(t *testing.T) {
 	assert.Equal(t, 1, serverCallCount)
 }
 
+func TestStartSessionReturnsErrorWhenServerDoesNotReturn200(t *testing.T) {
+	serverCallCount := 0
+	sessionName := "my-new-session"
+
+	server := httptest.NewServer(
+		http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				serverCallCount++
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte("400 Bad Request"))
+			},
+		),
+	)
+	defer server.Close()
+
+	smockerInstance := smockerclient.NewInstance(server.URL)
+	err := smockerInstance.StartSession(sessionName)
+
+	assert.Equal(t, 1, serverCallCount)
+	assert.EqualError(t, err, "smockerclient unable to create a new session named my-new-session received status:400 and message:400 Bad Request")
+}
+
 func TestAddMock(t *testing.T) {
 	serverCallCount := 0
 	jsonMock := `{"example": 1234}`
@@ -132,7 +154,7 @@ func TestAddMockReturnsErrorWhenServerDoesNotReturn200(t *testing.T) {
 	err := smockerInstance.AddMock(fakeMock)
 
 	assert.Equal(t, 1, serverCallCount)
-	assert.EqualError(t, err, "unable to add mock received status:400 and message:400 Bad Request")
+	assert.EqualError(t, err, "smockerclient unable to add mock received status:400 and message:400 Bad Request")
 }
 
 type FakeMock struct {

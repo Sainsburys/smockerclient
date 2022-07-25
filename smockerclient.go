@@ -35,9 +35,17 @@ func (i Instance) StartSession(name string) error {
 		return fmt.Errorf("smockerclient unable to create request to start a new session %w", err)
 	}
 
-	_, err = i.httpClient.Do(req)
+	resp, err := i.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("smockerclient unable to send request to start a new session %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("smockerclient unable to create a new session named %s received status:%d", name, resp.StatusCode)
+		}
+		return fmt.Errorf("smockerclient unable to create a new session named %s received status:%d and message:%s", name, resp.StatusCode, body)
 	}
 
 	return nil
@@ -83,9 +91,9 @@ func (i Instance) AddMock(mock Mock) error {
 	if resp.StatusCode != http.StatusOK {
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return fmt.Errorf("unable to add mock and unable to read response message received status:%d", resp.StatusCode)
+			return fmt.Errorf("smockerclient unable to add mock and unable to read response message received status:%d", resp.StatusCode)
 		}
-		return fmt.Errorf("unable to add mock received status:%d and message:%s", resp.StatusCode, body)
+		return fmt.Errorf("smockerclient unable to add mock received status:%d and message:%s", resp.StatusCode, body)
 	}
 
 	return nil
