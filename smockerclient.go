@@ -66,22 +66,10 @@ func (i Instance) createSessionRequest(name string) (*http.Request, error) {
 }
 
 func (i Instance) AddMock(mock Mock) error {
-	url := i.url + "/mocks"
-
-	// Smocker API always expects a list of mocks to be sent
-	mocks := []Mock{mock}
-	body := &bytes.Buffer{}
-	err := json.NewEncoder(body).Encode(mocks)
+	req, err := i.createAddMockRequest(mock)
 	if err != nil {
-		return fmt.Errorf("smockerclient unable to create request body from mock %w", err)
+		return err
 	}
-
-	req, err := http.NewRequest(http.MethodPost, url, body)
-	if err != nil {
-		return fmt.Errorf("smockerclient unable to create request to add a new mock %w", err)
-	}
-
-	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := i.httpClient.Do(req)
 	if err != nil {
@@ -97,4 +85,24 @@ func (i Instance) AddMock(mock Mock) error {
 	}
 
 	return nil
+}
+
+func (i Instance) createAddMockRequest(mock Mock) (*http.Request, error) {
+	url := i.url + "/mocks"
+
+	// Smocker API always expects a list of mocks to be sent
+	mocks := []Mock{mock}
+	body := &bytes.Buffer{}
+	err := json.NewEncoder(body).Encode(mocks)
+	if err != nil {
+		return nil, fmt.Errorf("smockerclient unable to create request body from mock %w", err)
+	}
+
+	req, err := http.NewRequest(http.MethodPost, url, body)
+	if err != nil {
+		return nil, fmt.Errorf("smockerclient unable to create request to add a new mock %w", err)
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	return req, nil
 }
