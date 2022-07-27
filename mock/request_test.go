@@ -29,14 +29,14 @@ func TestRequestWithQueryParamsJsonEncoding(t *testing.T) {
 		"method": "PUT",
 		"path": "/foo/bar",
 		"query_params": {
-            "limit": "10",
-            "offset": "0"
+            "limit": ["10"],
+            "filters": ["red", "green"]
 		}
 	}`
 
 	request := mock.NewRequest(http.MethodPut, "/foo/bar")
 	request.AddQueryParam("limit", "10")
-	request.AddQueryParam("offset", "0")
+	request.AddQueryParam("filters", "red", "green")
 
 	jsonBytes, err := json.Marshal(request)
 
@@ -49,13 +49,13 @@ func TestRequestWithHeadersJsonEncoding(t *testing.T) {
 		"method": "PUT",
 		"path": "/foo/bar",
 		"headers": {
-			"Content-Type": "application/json",
-			"Authorization": "Bearer sv2361fr1o8ph3oin"
+			"Content-Type": ["application/json", "application/vnd.api+json"],
+			"Authorization": ["Bearer sv2361fr1o8ph3oin"]
 		}
 	}`
 
 	request := mock.NewRequest(http.MethodPut, "/foo/bar")
-	request.AddHeader("Content-Type", "application/json")
+	request.AddHeader("Content-Type", "application/json", "application/vnd.api+json")
 	request.AddHeader("Authorization", "Bearer sv2361fr1o8ph3oin")
 
 	jsonBytes, err := json.Marshal(request)
@@ -100,11 +100,16 @@ func TestRequestWithJsonBodyGivenBadJsonErrors(t *testing.T) {
 
 func TestMultiMapJsonEncoding(t *testing.T) {
 	expectedJson := `{
-		"limit": "10",
-		"key": "value"
+		"limit": ["10"],
+		"key": ["value"],
+		"filter": ["10", "20"]
 	}`
 
-	queryParams := mock.MultiMap{"limit": "10", "key": "value"}
+	queryParams := mock.MultiMap{
+		"limit":  []string{"10"},
+		"key":    []string{"value"},
+		"filter": []string{"10", "20"},
+	}
 	jsonBytes, err := json.Marshal(queryParams)
 
 	assert.NoError(t, err)

@@ -22,20 +22,20 @@ func NewRequest(method, path string) Request {
 	}
 }
 
-func (r *Request) AddQueryParam(key, value string) {
+func (r *Request) AddQueryParam(key string, values ...string) {
 	if r.QueryParams == nil {
 		r.QueryParams = MultiMap{}
 	}
 
-	r.QueryParams[key] = value
+	r.QueryParams[key] = values
 }
 
-func (r *Request) AddHeader(key, value string) {
+func (r *Request) AddHeader(key string, values ...string) {
 	if r.Headers == nil {
 		r.Headers = MultiMap{}
 	}
 
-	r.Headers[key] = value
+	r.Headers[key] = values
 }
 
 func (r *Request) AddJsonBody(jsonBody string) error {
@@ -62,23 +62,32 @@ func compactJson(jsonObject string) (string, error) {
 	return compactJsonObject.String(), nil
 }
 
-type MultiMap map[string]string
+type MultiMap map[string][]string
 
-func (qp MultiMap) MarshalJSON() ([]byte, error) {
-	paramsAsJson := qp.combineKeyValuePairsForJson()
+func (mm MultiMap) MarshalJSON() ([]byte, error) {
+	paramsAsJson, err := mm.combineKeyValuePairsForJson()
+	if err != nil {
+		return nil, fmt.Errorf("unable json convert mutlimap %+v. %w", mm, err)
+	}
+
 	multiMapJson := "{" + paramsAsJson + "}"
 	return []byte(multiMapJson), nil
 }
 
-func (qp MultiMap) combineKeyValuePairsForJson() string {
+func (mm MultiMap) combineKeyValuePairsForJson() (string, error) {
 	params := make([]string, 0)
 
-	for key, value := range qp {
-		pair := `"` + key + `":"` + value + `"`
+	for key, values := range mm {
+		jsonValues, err := json.Marshal(values)
+		if err != nil {
+			return "", err
+		}
+
+		pair := `"` + key + `":` + string(jsonValues)
 		params = append(params, pair)
 	}
 
-	return strings.Join(params, ",")
+	return strings.Join(params, ","), nil
 }
 
 type Body struct {
