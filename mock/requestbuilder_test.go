@@ -39,8 +39,7 @@ func TestRequestBuilder_ToRequestJson(t *testing.T) {
 		"uuid": "daa7b90d-9429-4d7a-9304-edc41ff44a6d",
 		"rank": 10
 	}`
-	err := request.AddJsonBody(jsonBody)
-	assert.NoError(t, err)
+	request.AddJsonBody(jsonBody)
 
 	jsonBytes, err := json.Marshal(request)
 
@@ -118,38 +117,9 @@ func TestRequestBuilderWithJsonBodyEncoding(t *testing.T) {
 	}`
 
 	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
-	err := request.AddJsonBody(jsonBody)
-
-	assert.NoError(t, err)
+	request.AddJsonBody(jsonBody)
 
 	jsonBytes, err := json.Marshal(request)
-	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(jsonBytes))
-}
-
-func TestRequestBuilderWithJsonBodyGivenBadJsonErrors(t *testing.T) {
-	jsonBody := `{name: "example"}`
-
-	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
-	err := request.AddJsonBody(jsonBody)
-
-	assert.ErrorContains(t, err, "unable to compact body json")
-}
-
-func TestMultiMapJsonEncoding(t *testing.T) {
-	expectedJson := `{
-		"limit": ["10"],
-		"key": ["value"],
-		"filter": ["10", "20"]
-	}`
-
-	queryParams := mock.MultiMap{
-		"limit":  []string{"10"},
-		"key":    []string{"value"},
-		"filter": []string{"10", "20"},
-	}
-	jsonBytes, err := json.Marshal(queryParams)
-
 	assert.NoError(t, err)
 	assert.JSONEq(t, expectedJson, string(jsonBytes))
 }
