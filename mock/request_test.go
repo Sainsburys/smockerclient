@@ -64,6 +64,40 @@ func TestRequestWithHeadersJsonEncoding(t *testing.T) {
 	assert.JSONEq(t, expectedJson, string(jsonBytes))
 }
 
+func TestRequestWithJsonBodyEncoding(t *testing.T) {
+	jsonBody := `{
+		"name": "John Smith",
+		"uuid": "daa7b90d-9429-4d7a-9304-edc41ff44a6d",
+		"rank": 10
+	}`
+	expectedJson := `{
+		"method": "PUT",
+		"path": "/foo/bar",
+		"body": {
+			"matcher": "ShouldEqualJSON",
+			"value": "{\"name\":\"John Smith\",\"uuid\":\"daa7b90d-9429-4d7a-9304-edc41ff44a6d\",\"rank\":10}"
+		}
+	}`
+
+	request := mock.NewRequest(http.MethodPut, "/foo/bar")
+	err := request.AddJsonBody(jsonBody)
+
+	assert.NoError(t, err)
+
+	jsonBytes, err := json.Marshal(request)
+	assert.NoError(t, err)
+	assert.JSONEq(t, expectedJson, string(jsonBytes))
+}
+
+func TestRequestWithJsonBodyGivenBadJsonErrors(t *testing.T) {
+	jsonBody := `{name: "example"}`
+
+	request := mock.NewRequest(http.MethodPut, "/foo/bar")
+	err := request.AddJsonBody(jsonBody)
+
+	assert.ErrorContains(t, err, "unable to compact body json")
+}
+
 func TestMultiMapJsonEncoding(t *testing.T) {
 	expectedJson := `{
 		"limit": "10",

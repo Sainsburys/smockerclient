@@ -1,6 +1,9 @@
 package mock
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"strings"
 )
 
@@ -9,6 +12,7 @@ type Request struct {
 	Path        string   `json:"path"`
 	QueryParams MultiMap `json:"query_params,omitempty"`
 	Headers     MultiMap `json:"headers,omitempty"`
+	Body        *Body    `json:"body,omitempty"`
 }
 
 func NewRequest(method, path string) Request {
@@ -34,12 +38,36 @@ func (r *Request) AddHeader(key, value string) {
 	r.Headers[key] = value
 }
 
+func (r *Request) AddJsonBody(jsonBody string) error {
+	compactJsonBody, err := compactJson(jsonBody)
+	if err != nil {
+		return fmt.Errorf("unable to compact body json. %w", err)
+	}
+
+	body := Body{
+		Matcher: "ShouldEqualJSON",
+		Value:   compactJsonBody,
+	}
+	r.Body = &body
+
+	return nil
+}
+
+func compactJson(jsonObject string) (string, error) {
+	compactJsonObject := new(bytes.Buffer)
+	err := json.Compact(compactJsonObject, []byte(jsonObject))
+	if err != nil {
+		return "", err
+	}
+	return compactJsonObject.String(), nil
+}
+
 type MultiMap map[string]string
 
 func (qp MultiMap) MarshalJSON() ([]byte, error) {
 	paramsAsJson := qp.combineKeyValuePairsForJson()
-	json := "{" + paramsAsJson + "}"
-	return []byte(json), nil
+	multiMapJson := "{" + paramsAsJson + "}"
+	return []byte(multiMapJson), nil
 }
 
 func (qp MultiMap) combineKeyValuePairsForJson() string {
@@ -51,4 +79,9 @@ func (qp MultiMap) combineKeyValuePairsForJson() string {
 	}
 
 	return strings.Join(params, ",")
+}
+
+type Body struct {
+	Matcher string `json:"matcher"`
+	Value   string `json:"value"`
 }
