@@ -1,9 +1,18 @@
 package mock
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
-type Mock struct{}
+type Request json.Marshaler
+type Response json.Marshaler
 
-func (m Mock) MarshalJSON() ([]byte, error) {
+type Definition struct {
+	Request  Request  `json:"request"`
+	Response Response `json:"response"`
+}
+
+func (m Definition) MarshalJSON() ([]byte, error) {
 	return nil, fmt.Errorf("not implemented")
 }

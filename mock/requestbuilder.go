@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type Request struct {
+type RequestBuilder struct {
 	Method      string   `json:"method"`
 	Path        string   `json:"path"`
 	QueryParams MultiMap `json:"query_params,omitempty"`
@@ -15,14 +15,14 @@ type Request struct {
 	Body        *Body    `json:"body,omitempty"`
 }
 
-func NewRequest(method, path string) Request {
-	return Request{
+func NewRequestBuilder(method, path string) RequestBuilder {
+	return RequestBuilder{
 		Method: method,
 		Path:   path,
 	}
 }
 
-func (r *Request) AddQueryParam(key string, values ...string) {
+func (r *RequestBuilder) AddQueryParam(key string, values ...string) {
 	if r.QueryParams == nil {
 		r.QueryParams = MultiMap{}
 	}
@@ -30,7 +30,7 @@ func (r *Request) AddQueryParam(key string, values ...string) {
 	r.QueryParams[key] = values
 }
 
-func (r *Request) AddHeader(key string, values ...string) {
+func (r *RequestBuilder) AddHeader(key string, values ...string) {
 	if r.Headers == nil {
 		r.Headers = MultiMap{}
 	}
@@ -38,7 +38,7 @@ func (r *Request) AddHeader(key string, values ...string) {
 	r.Headers[key] = values
 }
 
-func (r *Request) AddJsonBody(jsonBody string) error {
+func (r *RequestBuilder) AddJsonBody(jsonBody string) error {
 	compactJsonBody, err := compactJson(jsonBody)
 	if err != nil {
 		return fmt.Errorf("unable to compact body json. %w", err)

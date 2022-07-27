@@ -6,7 +6,7 @@ type JsonMock struct {
 	json string
 }
 
-func NewJsonMock(json string) smockerclient.Mock {
+func NewJsonMock(json string) smockerclient.MockDefinition {
 	return JsonMock{
 		json: json,
 	}

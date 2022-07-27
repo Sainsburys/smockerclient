@@ -10,13 +10,13 @@ import (
 	"github.com/churmd/smockerclient/mock"
 )
 
-func TestRequestBasicJsonEncoding(t *testing.T) {
+func TestRequestBuilderBuilderBasicJsonEncoding(t *testing.T) {
 	expectedJson := `{
 		"method": "PUT",
 		"path": "/foo/bar"
 	}`
 
-	request := mock.NewRequest(http.MethodPut, "/foo/bar")
+	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
 
 	jsonBytes, err := json.Marshal(request)
 
@@ -24,7 +24,7 @@ func TestRequestBasicJsonEncoding(t *testing.T) {
 	assert.JSONEq(t, expectedJson, string(jsonBytes))
 }
 
-func TestRequestWithQueryParamsJsonEncoding(t *testing.T) {
+func TestRequestBuilderWithQueryParamsJsonEncoding(t *testing.T) {
 	expectedJson := `{
 		"method": "PUT",
 		"path": "/foo/bar",
@@ -34,7 +34,7 @@ func TestRequestWithQueryParamsJsonEncoding(t *testing.T) {
 		}
 	}`
 
-	request := mock.NewRequest(http.MethodPut, "/foo/bar")
+	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
 	request.AddQueryParam("limit", "10")
 	request.AddQueryParam("filters", "red", "green")
 
@@ -44,7 +44,7 @@ func TestRequestWithQueryParamsJsonEncoding(t *testing.T) {
 	assert.JSONEq(t, expectedJson, string(jsonBytes))
 }
 
-func TestRequestWithHeadersJsonEncoding(t *testing.T) {
+func TestRequestBuilderWithHeadersJsonEncoding(t *testing.T) {
 	expectedJson := `{
 		"method": "PUT",
 		"path": "/foo/bar",
@@ -54,7 +54,7 @@ func TestRequestWithHeadersJsonEncoding(t *testing.T) {
 		}
 	}`
 
-	request := mock.NewRequest(http.MethodPut, "/foo/bar")
+	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
 	request.AddHeader("Content-Type", "application/json", "application/vnd.api+json")
 	request.AddHeader("Authorization", "Bearer sv2361fr1o8ph3oin")
 
@@ -64,7 +64,7 @@ func TestRequestWithHeadersJsonEncoding(t *testing.T) {
 	assert.JSONEq(t, expectedJson, string(jsonBytes))
 }
 
-func TestRequestWithJsonBodyEncoding(t *testing.T) {
+func TestRequestBuilderWithJsonBodyEncoding(t *testing.T) {
 	jsonBody := `{
 		"name": "John Smith",
 		"uuid": "daa7b90d-9429-4d7a-9304-edc41ff44a6d",
@@ -79,7 +79,7 @@ func TestRequestWithJsonBodyEncoding(t *testing.T) {
 		}
 	}`
 
-	request := mock.NewRequest(http.MethodPut, "/foo/bar")
+	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
 	err := request.AddJsonBody(jsonBody)
 
 	assert.NoError(t, err)
@@ -89,10 +89,10 @@ func TestRequestWithJsonBodyEncoding(t *testing.T) {
 	assert.JSONEq(t, expectedJson, string(jsonBytes))
 }
 
-func TestRequestWithJsonBodyGivenBadJsonErrors(t *testing.T) {
+func TestRequestBuilderWithJsonBodyGivenBadJsonErrors(t *testing.T) {
 	jsonBody := `{name: "example"}`
 
-	request := mock.NewRequest(http.MethodPut, "/foo/bar")
+	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
 	err := request.AddJsonBody(jsonBody)
 
 	assert.ErrorContains(t, err, "unable to compact body json")
