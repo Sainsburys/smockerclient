@@ -8,11 +8,11 @@ import (
 	"github.com/churmd/smockerclient/mock"
 )
 
-func TestJsonMockReturnsGivenJson(t *testing.T) {
+func TestRawJsonDefinition_ToMockJson(t *testing.T) {
 	json := jsonForMock()
 
-	jsonMock := mock.NewJsonMock(json)
-	definition, err := jsonMock.MarshalJSON()
+	jsonMock := mock.NewRawJsonDefinition(json)
+	definition, err := jsonMock.ToMockJson()
 
 	assert.NoError(t, err)
 	assert.JSONEq(t, json, string(definition))

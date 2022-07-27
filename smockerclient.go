@@ -8,7 +8,9 @@ import (
 	"net/http"
 )
 
-type MockDefinition json.Marshaler
+type Mock interface {
+	ToMockJson() ([]byte, error)
+}
 
 type Instance struct {
 	url        string
@@ -65,7 +67,7 @@ func (i Instance) createSessionRequest(name string) (*http.Request, error) {
 	return req, nil
 }
 
-func (i Instance) AddMock(mock MockDefinition) error {
+func (i Instance) AddMock(mock Mock) error {
 	req, err := i.createAddMockRequest(mock)
 	if err != nil {
 		return err
@@ -87,13 +89,18 @@ func (i Instance) AddMock(mock MockDefinition) error {
 	return nil
 }
 
-func (i Instance) createAddMockRequest(mock MockDefinition) (*http.Request, error) {
+func (i Instance) createAddMockRequest(mock Mock) (*http.Request, error) {
 	url := i.url + "/mocks"
 
+	mockJson, err := mock.ToMockJson()
+	if err != nil {
+		return nil, fmt.Errorf("smockerclient unable to convert mock to json %w", err)
+	}
+
 	// Smocker API always expects a list of mocks to be sent
-	mocks := []MockDefinition{mock}
+	mocks := []json.RawMessage{mockJson}
 	body := &bytes.Buffer{}
-	err := json.NewEncoder(body).Encode(mocks)
+	err = json.NewEncoder(body).Encode(mocks)
 	if err != nil {
 		return nil, fmt.Errorf("smockerclient unable to create request body from mock %w", err)
 	}

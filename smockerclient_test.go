@@ -161,6 +161,6 @@ type FakeMock struct {
 	Json string
 }
 
-func (fm FakeMock) MarshalJSON() ([]byte, error) {
+func (fm FakeMock) ToMockJson() ([]byte, error) {
 	return []byte(fm.Json), nil
 }

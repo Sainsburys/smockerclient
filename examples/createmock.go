@@ -25,7 +25,7 @@ func main() {
 		  "body": "{\"status\": \"OK\"}"
 	   }
 	}`
-	jsonMock := mock.NewJsonMock(exampleMockDefinition)
+	jsonMock := mock.NewRawJsonDefinition(exampleMockDefinition)
 	err = instance.AddMock(jsonMock)
 	if err != nil {
 		log.Fatal(err)

@@ -1,7 +1,6 @@
 package mock_test
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,7 +8,7 @@ import (
 	"github.com/churmd/smockerclient/mock"
 )
 
-func TestMockJsonEncoding(t *testing.T) {
+func TestDefinition_ToMockJson(t *testing.T) {
 	reqJson := `{
 		"method": "PUT",
 		"path": "/foo/bar"
@@ -33,12 +32,9 @@ func TestMockJsonEncoding(t *testing.T) {
 		}
 	}`
 
-	definition := mock.Definition{
-		Request:  fakeReq,
-		Response: fakeResp,
-	}
+	definition := mock.NewDefinition(fakeReq, fakeResp)
 
-	actualJson, err := json.Marshal(definition)
+	actualJson, err := definition.ToMockJson()
 
 	assert.NoError(t, err)
 	assert.JSONEq(t, expectedJson, string(actualJson))
@@ -48,7 +44,7 @@ type FakeRequest struct {
 	Json string
 }
 
-func (fr FakeRequest) MarshalJSON() ([]byte, error) {
+func (fr FakeRequest) ToRequestJson() ([]byte, error) {
 	return []byte(fr.Json), nil
 }
 
@@ -56,6 +52,6 @@ type FakeResponse struct {
 	Json string
 }
 
-func (fr FakeResponse) MarshalJSON() ([]byte, error) {
+func (fr FakeResponse) ToResponseJson() ([]byte, error) {
 	return []byte(fr.Json), nil
 }
