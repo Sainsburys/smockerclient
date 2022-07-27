@@ -22,23 +22,27 @@ func NewRequestBuilder(method, path string) RequestBuilder {
 	}
 }
 
-func (r *RequestBuilder) AddQueryParam(key string, values ...string) {
-	if r.QueryParams == nil {
-		r.QueryParams = MultiMap{}
-	}
-
-	r.QueryParams[key] = values
+func (rb RequestBuilder) ToRequestJson() ([]byte, error) {
+	return json.Marshal(rb)
 }
 
-func (r *RequestBuilder) AddHeader(key string, values ...string) {
-	if r.Headers == nil {
-		r.Headers = MultiMap{}
+func (rb *RequestBuilder) AddQueryParam(key string, values ...string) {
+	if rb.QueryParams == nil {
+		rb.QueryParams = MultiMap{}
 	}
 
-	r.Headers[key] = values
+	rb.QueryParams[key] = values
 }
 
-func (r *RequestBuilder) AddJsonBody(jsonBody string) error {
+func (rb *RequestBuilder) AddHeader(key string, values ...string) {
+	if rb.Headers == nil {
+		rb.Headers = MultiMap{}
+	}
+
+	rb.Headers[key] = values
+}
+
+func (rb *RequestBuilder) AddJsonBody(jsonBody string) error {
 	compactJsonBody, err := compactJson(jsonBody)
 	if err != nil {
 		return fmt.Errorf("unable to compact body json. %w", err)
@@ -48,7 +52,7 @@ func (r *RequestBuilder) AddJsonBody(jsonBody string) error {
 		Matcher: "ShouldEqualJSON",
 		Value:   compactJsonBody,
 	}
-	r.Body = &body
+	rb.Body = &body
 
 	return nil
 }
