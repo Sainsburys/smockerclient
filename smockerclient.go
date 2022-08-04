@@ -113,3 +113,35 @@ func (i Instance) createAddMockRequest(mock Mock) (*http.Request, error) {
 	req.Header.Add("Content-Type", "application/json")
 	return req, nil
 }
+
+func (i Instance) ResetAllSessionsAndMocks() error {
+	request, err := i.createResetAllSessionAndMocksRequest()
+	if err != nil {
+		return err
+	}
+
+	resp, err := i.httpClient.Do(request)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("smockerclient unable to reset all the sessions and mocks and unable to read response message received status:%d", resp.StatusCode)
+		}
+		return fmt.Errorf("smockerclient unable to reset all the sessions and mocks received status:%d and message:%s", resp.StatusCode, body)
+	}
+
+	return nil
+}
+
+func (i Instance) createResetAllSessionAndMocksRequest() (*http.Request, error) {
+	url := i.url + "/reset"
+	request, err := http.NewRequest(http.MethodPost, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("smockerclient unable to create request to reset all the sessions and mocks %w", err)
+	}
+
+	return request, nil
+}

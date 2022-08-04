@@ -157,6 +157,54 @@ func TestAddMockReturnsErrorWhenServerDoesNotReturn200(t *testing.T) {
 	assert.EqualError(t, err, "smockerclient unable to add mock received status:400 and message:400 Bad Request")
 }
 
+func TestResetAllSessionsAndMocks(t *testing.T) {
+	serverCallCount := 0
+
+	server := httptest.NewServer(
+		http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				serverCallCount++
+
+				assert.Equal(t, http.MethodPost, r.Method)
+				assert.Equal(t, "/reset", r.URL.Path)
+
+				resp := `{
+			  		"message": "Reset successful"
+				}`
+				w.Write([]byte(resp))
+			},
+		),
+	)
+	defer server.Close()
+
+	smockerInstance := smockerclient.NewInstance(server.URL)
+	err := smockerInstance.ResetAllSessionsAndMocks()
+
+	assert.NoError(t, err)
+	assert.Equal(t, 1, serverCallCount)
+}
+
+func TestInstance_ResetAllSessionsAndMocks_ReturnsErrorWhenServerDoesNotReturn200(t *testing.T) {
+	serverCallCount := 0
+
+	server := httptest.NewServer(
+		http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				serverCallCount++
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte("400 Bad Request"))
+			},
+		),
+	)
+	defer server.Close()
+
+	smockerInstance := smockerclient.NewInstance(server.URL)
+	err := smockerInstance.ResetAllSessionsAndMocks()
+
+	assert.Equal(t, 1, serverCallCount)
+	assert.EqualError(t, err, "smockerclient unable to reset all the sessions and mocks received status:400 and message:400 Bad Request")
+}
+
 type FakeMock struct {
 	Json string
 }

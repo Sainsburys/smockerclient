@@ -10,7 +10,13 @@ import (
 func main() {
 	instance := smockerclient.DefaultInstance()
 
-	err := instance.StartSession("SmockerClientSession")
+	// Clear any old sessions and mocks
+	err := instance.ResetAllSessionsAndMocks()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = instance.StartSession("SmockerClientSession")
 	if err != nil {
 		log.Fatal(err)
 	}
