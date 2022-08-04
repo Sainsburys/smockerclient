@@ -85,7 +85,7 @@ func TestStartSessionReturnsErrorWhenServerDoesNotReturn200(t *testing.T) {
 	err := smockerInstance.StartSession(sessionName)
 
 	assert.Equal(t, 1, *serverCallCount)
-	assert.EqualError(t, err, "smockerclient unable to create a new session named my-new-session received status:400 and message:400 Bad Request")
+	assert.EqualError(t, err, "smockerclient unable to create a new session named my-new-session. received status:400 and message:400 Bad Request")
 }
 
 func TestAddMock(t *testing.T) {
@@ -136,7 +136,7 @@ func TestAddMockReturnsErrorWhenServerDoesNotReturn200(t *testing.T) {
 	err := smockerInstance.AddMock(fakeMock)
 
 	assert.Equal(t, 1, *serverCallCount)
-	assert.EqualError(t, err, "smockerclient unable to add mock received status:400 and message:400 Bad Request")
+	assert.EqualError(t, err, "smockerclient unable to add mock. received status:400 and message:400 Bad Request")
 }
 
 func TestResetAllSessionsAndMocks(t *testing.T) {
@@ -174,7 +174,7 @@ func TestInstance_ResetAllSessionsAndMocks_ReturnsErrorWhenServerDoesNotReturn20
 	err := smockerInstance.ResetAllSessionsAndMocks()
 
 	assert.Equal(t, 1, *serverCallCount)
-	assert.EqualError(t, err, "smockerclient unable to reset all the sessions and mocks received status:400 and message:400 Bad Request")
+	assert.EqualError(t, err, "smockerclient unable to reset all the sessions and mocks. received status:400 and message:400 Bad Request")
 }
 
 func newBadResponseServer() (*httptest.Server, *int) {
