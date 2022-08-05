@@ -102,21 +102,12 @@ func (i Instance) sendAddMockRequest(mock Mock) (*http.Response, error) {
 }
 
 func (i Instance) createAddMockRequest(mock Mock) (*http.Request, error) {
+	body, err := createAddMockRequestBody(mock)
+	if err != nil {
+		return nil, err
+	}
+
 	url := i.url + "/mocks"
-
-	mockJson, err := mock.ToMockJson()
-	if err != nil {
-		return nil, fmt.Errorf("unable to convert mock to json %w", err)
-	}
-
-	// Smocker API always expects a list of mocks to be sent
-	mocks := []json.RawMessage{mockJson}
-	body := &bytes.Buffer{}
-	err = json.NewEncoder(body).Encode(mocks)
-	if err != nil {
-		return nil, fmt.Errorf("unable to create request body from mock %w", err)
-	}
-
 	req, err := http.NewRequest(http.MethodPost, url, body)
 	if err != nil {
 		return nil, err
@@ -124,6 +115,23 @@ func (i Instance) createAddMockRequest(mock Mock) (*http.Request, error) {
 
 	req.Header.Add("Content-Type", "application/json")
 	return req, nil
+}
+
+func createAddMockRequestBody(mock Mock) (*bytes.Buffer, error) {
+	mockJson, err := mock.ToMockJson()
+	if err != nil {
+		return nil, fmt.Errorf("unable to convert mock to json when running ToMockJson %w", err)
+	}
+
+	// Smocker API always expects a list of mocks to be sent
+	mocks := []json.RawMessage{mockJson}
+	body := &bytes.Buffer{}
+	err = json.NewEncoder(body).Encode(mocks)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create request body bytes from mock %w", err)
+	}
+
+	return body, nil
 }
 
 func (i Instance) ResetAllSessionsAndMocks() error {
@@ -165,14 +173,15 @@ func (i Instance) createResetAllSessionAndMocksRequest() (*http.Request, error) 
 }
 
 func handleNon200Response(resp *http.Response) error {
-	if resp.StatusCode != http.StatusOK {
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return fmt.Errorf("unable to read response message received status:%d", resp.StatusCode)
-		}
-
-		return fmt.Errorf("received status:%d and message:%s", resp.StatusCode, body)
+	if resp.StatusCode == http.StatusOK {
+		return nil
 	}
 
-	return nil
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("unable to read response message received status:%d", resp.StatusCode)
+	}
+
+	return fmt.Errorf("received status:%d and message:%s", resp.StatusCode, body)
+
 }
