@@ -123,3 +123,22 @@ func TestRequestBuilderWithJsonBodyEncoding(t *testing.T) {
 	assert.NoError(t, err)
 	assert.JSONEq(t, expectedJson, string(jsonBytes))
 }
+
+func TestNewRequestBuilder_AddBearerAuthToken(t *testing.T) {
+	bearerToken := "sv2361fr1o8ph3oin"
+	expectedJson := `{
+		"method": "PUT",
+		"path": "/foo/bar",
+		"headers": {
+			"Authorization": ["Bearer sv2361fr1o8ph3oin"]
+		}
+	}`
+
+	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
+	request.AddBearerAuthToken(bearerToken)
+
+	jsonBytes, err := json.Marshal(request)
+
+	assert.NoError(t, err)
+	assert.JSONEq(t, expectedJson, string(jsonBytes))
+}

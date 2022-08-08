@@ -24,19 +24,33 @@ func (rb RequestBuilder) ToRequestJson() ([]byte, error) {
 }
 
 func (rb *RequestBuilder) AddQueryParam(key string, values ...string) {
-	if rb.QueryParams == nil {
-		rb.QueryParams = MultiMap{}
-	}
-
+	rb.initialiseQueryParams()
 	rb.QueryParams[key] = values
 }
 
+func (rb *RequestBuilder) initialiseQueryParams() {
+	if rb.QueryParams == nil {
+		rb.QueryParams = MultiMap{}
+	}
+}
+
 func (rb *RequestBuilder) AddHeader(key string, values ...string) {
+	rb.initialiseHeaders()
+	rb.Headers[key] = values
+}
+
+func (rb *RequestBuilder) AddBearerAuthToken(token string) {
+	rb.initialiseHeaders()
+
+	bearerToken := "Bearer " + token
+	bearerTokenMultiMapValue := []string{bearerToken}
+	rb.Headers["Authorization"] = bearerTokenMultiMapValue
+}
+
+func (rb *RequestBuilder) initialiseHeaders() {
 	if rb.Headers == nil {
 		rb.Headers = MultiMap{}
 	}
-
-	rb.Headers[key] = values
 }
 
 func (rb *RequestBuilder) AddJsonBody(jsonBody string) {
