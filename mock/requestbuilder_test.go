@@ -142,3 +142,23 @@ func TestNewRequestBuilder_AddBearerAuthToken(t *testing.T) {
 	assert.NoError(t, err)
 	assert.JSONEq(t, expectedJson, string(jsonBytes))
 }
+
+func TestNewRequestBuilder_AddBasicAuth(t *testing.T) {
+	username := "admin"
+	password := "password"
+	expectedJson := `{
+		"method": "PUT",
+		"path": "/foo/bar",
+		"headers": {
+			"Authorization": ["Basic YWRtaW46cGFzc3dvcmQ="]
+		}
+	}`
+
+	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
+	request.AddBasicAuth(username, password)
+
+	jsonBytes, err := json.Marshal(request)
+
+	assert.NoError(t, err)
+	assert.JSONEq(t, expectedJson, string(jsonBytes))
+}

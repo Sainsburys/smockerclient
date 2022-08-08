@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"encoding/base64"
 	"encoding/json"
 )
 
@@ -45,6 +46,16 @@ func (rb *RequestBuilder) AddBearerAuthToken(token string) {
 	bearerToken := "Bearer " + token
 	bearerTokenMultiMapValue := []string{bearerToken}
 	rb.Headers["Authorization"] = bearerTokenMultiMapValue
+}
+
+func (rb *RequestBuilder) AddBasicAuth(username string, password string) {
+	rb.initialiseHeaders()
+
+	usernamePasswordCombined := username + ":" + password
+	usernamePasswordCombinedBase64Encoded := base64.StdEncoding.EncodeToString([]byte(usernamePasswordCombined))
+	basicToken := "Basic " + usernamePasswordCombinedBase64Encoded
+	basicTokenMultiMapValue := []string{basicToken}
+	rb.Headers["Authorization"] = basicTokenMultiMapValue
 }
 
 func (rb *RequestBuilder) initialiseHeaders() {
