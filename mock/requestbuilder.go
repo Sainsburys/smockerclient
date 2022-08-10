@@ -31,8 +31,25 @@ func (rb *RequestBuilder) AddQueryParam(key string, values ...string) {
 
 func (rb *RequestBuilder) initialiseQueryParams() {
 	if rb.QueryParams == nil {
-		rb.QueryParams = MultiMap{}
+		rb.QueryParams = make(MultiMap, 1)
 	}
+}
+
+func (rb *RequestBuilder) AddBearerAuthToken(token string) {
+	bearerToken := "Bearer " + token
+	rb.AddHeader("Authorization", bearerToken)
+}
+
+func (rb *RequestBuilder) AddBasicAuth(username string, password string) {
+	basicToken := createBasicToken(username, password)
+	rb.AddHeader("Authorization", basicToken)
+}
+
+func createBasicToken(username string, password string) string {
+	usernamePasswordCombined := username + ":" + password
+	base64Encoding := base64.StdEncoding.EncodeToString([]byte(usernamePasswordCombined))
+	basicToken := "Basic " + base64Encoding
+	return basicToken
 }
 
 func (rb *RequestBuilder) AddHeader(key string, values ...string) {
@@ -40,27 +57,9 @@ func (rb *RequestBuilder) AddHeader(key string, values ...string) {
 	rb.Headers[key] = values
 }
 
-func (rb *RequestBuilder) AddBearerAuthToken(token string) {
-	rb.initialiseHeaders()
-
-	bearerToken := "Bearer " + token
-	bearerTokenMultiMapValue := []string{bearerToken}
-	rb.Headers["Authorization"] = bearerTokenMultiMapValue
-}
-
-func (rb *RequestBuilder) AddBasicAuth(username string, password string) {
-	rb.initialiseHeaders()
-
-	usernamePasswordCombined := username + ":" + password
-	usernamePasswordCombinedBase64Encoded := base64.StdEncoding.EncodeToString([]byte(usernamePasswordCombined))
-	basicToken := "Basic " + usernamePasswordCombinedBase64Encoded
-	basicTokenMultiMapValue := []string{basicToken}
-	rb.Headers["Authorization"] = basicTokenMultiMapValue
-}
-
 func (rb *RequestBuilder) initialiseHeaders() {
 	if rb.Headers == nil {
-		rb.Headers = MultiMap{}
+		rb.Headers = make(MultiMap, 1)
 	}
 }
 
