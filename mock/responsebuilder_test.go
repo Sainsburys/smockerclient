@@ -9,65 +9,58 @@ import (
 	"github.com/churmd/smockerclient/mock"
 )
 
-func TestResponseBuilder_ToResponseJson(t *testing.T) {
-	expectedJson := `{
-		"status": 200,
-		"headers": {
-			"Content-Type": ["application/json"]
+func TestResponseBuilder_Build(t *testing.T) {
+	expectedResponse := mock.Response{
+		Status: http.StatusOK,
+		Headers: map[string][]string{
+			"Content-Type": {"application/json"},
 		},
-		"body": "{\"status\": \"OK\"}"
-	}`
+		Body: "{\"status\": \"OK\"}",
+	}
 
 	responseBuilder := mock.NewResponseBuilder(http.StatusOK)
 	responseBuilder.AddBody(`{"status": "OK"}`)
 	responseBuilder.AddHeader("Content-Type", "application/json")
+	response := responseBuilder.Build()
 
-	jsonBytes, err := responseBuilder.ToResponseJson()
-
-	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(jsonBytes))
+	assert.Equal(t, expectedResponse, response)
 }
 
-func TestNewResponseBuilder(t *testing.T) {
-	expectedJson := `{"status": 200}`
+func TestNewResponseBuilder_Build(t *testing.T) {
+	expectedResponse := mock.Response{
+		Status: http.StatusOK,
+	}
 
 	responseBuilder := mock.NewResponseBuilder(http.StatusOK)
+	response := responseBuilder.Build()
 
-	jsonBytes, err := responseBuilder.ToResponseJson()
-
-	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(jsonBytes))
+	assert.Equal(t, expectedResponse, response)
 }
 
-func TestNewResponseBuilder_AddHeader(t *testing.T) {
-	expectedJson := `{
-		"status": 200,
-		"headers": {
-			"Content-Type": ["application/json", "application/vnd.api+json"]
-		}
-	}`
+func TestNewResponseBuilder_AddHeader_Build(t *testing.T) {
+	expectedResponse := mock.Response{
+		Status: http.StatusOK,
+		Headers: map[string][]string{
+			"Content-Type": {"application/json"},
+		},
+	}
 
 	responseBuilder := mock.NewResponseBuilder(http.StatusOK)
-	responseBuilder.AddHeader("Content-Type", "application/json", "application/vnd.api+json")
+	responseBuilder.AddHeader("Content-Type", "application/json")
+	response := responseBuilder.Build()
 
-	jsonBytes, err := responseBuilder.ToResponseJson()
-
-	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(jsonBytes))
+	assert.Equal(t, expectedResponse, response)
 }
 
 func TestNewResponseBuilder_AddBody(t *testing.T) {
-	expectedJson := `{
-		"status": 200,
-		"body": "{\"status\": \"OK\"}"
-	}`
-	jsonBody := `{"status": "OK"}`
+	expectedResponse := mock.Response{
+		Status: http.StatusOK,
+		Body:   "{\"status\": \"OK\"}",
+	}
 
 	responseBuilder := mock.NewResponseBuilder(http.StatusOK)
-	responseBuilder.AddBody(jsonBody)
+	responseBuilder.AddBody(`{"status": "OK"}`)
+	response := responseBuilder.Build()
 
-	jsonBytes, err := responseBuilder.ToResponseJson()
-
-	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(jsonBytes))
+	assert.Equal(t, expectedResponse, response)
 }

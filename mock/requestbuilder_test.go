@@ -1,7 +1,6 @@
 package mock_test
 
 import (
-	"encoding/json"
 	"net/http"
 	"testing"
 
@@ -10,147 +9,142 @@ import (
 	"github.com/churmd/smockerclient/mock"
 )
 
-func TestRequestBuilder_ToRequestJson(t *testing.T) {
-	expectedJson := `{
-		"method": "PUT",
-		"path": "/foo/bar",
-		"query_params": {
-            "limit": ["10"],
-            "filters": ["red", "green"]
-		},
-		"headers": {
-			"Content-Type": ["application/json", "application/vnd.api+json"],
-			"Authorization": ["Bearer sv2361fr1o8ph3oin"]
-		},
-		"body": {
-			"matcher": "ShouldEqualJSON",
-			"value": "{\"name\": \"John Smith\", \"uuid\": \"daa7b90d-9429-4d7a-9304-edc41ff44a6d\", \"rank\": 10}"
-		}
-	}`
-
-	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
-	request.AddQueryParam("limit", "10")
-	request.AddQueryParam("filters", "red", "green")
-	request.AddHeader("Content-Type", "application/json", "application/vnd.api+json")
-	request.AddHeader("Authorization", "Bearer sv2361fr1o8ph3oin")
+func TestRequestBuilder_Build(t *testing.T) {
+	expectedQueryParams := map[string][]string{
+		"limit":   {"10"},
+		"filters": {"red", "green"},
+	}
+	expectedHeaders := map[string][]string{
+		"Content-Type":  {"application/json", "application/vnd.api+json"},
+		"Authorization": {"Bearer sv2361fr1o8ph3oin"},
+	}
+	expectedReqBody := mock.RequestBody{
+		Matcher: "ShouldEqualJSON",
+		Value:   "{\"name\": \"John Smith\", \"uuid\": \"daa7b90d-9429-4d7a-9304-edc41ff44a6d\", \"rank\": 10}",
+	}
+	expectedRequest := mock.Request{
+		Method:      http.MethodPut,
+		Path:        "/foo/bar",
+		QueryParams: expectedQueryParams,
+		Headers:     expectedHeaders,
+		Body:        &expectedReqBody,
+	}
 
 	jsonBody := `{"name": "John Smith", "uuid": "daa7b90d-9429-4d7a-9304-edc41ff44a6d", "rank": 10}`
-	request.AddJsonBody(jsonBody)
 
-	jsonBytes, err := request.ToRequestJson()
+	requestBuilder := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
+	requestBuilder.AddQueryParam("limit", "10")
+	requestBuilder.AddQueryParam("filters", "red", "green")
+	requestBuilder.AddHeader("Content-Type", "application/json", "application/vnd.api+json")
+	requestBuilder.AddHeader("Authorization", "Bearer sv2361fr1o8ph3oin")
+	requestBuilder.AddJsonBody(jsonBody)
+	request := requestBuilder.Build()
 
-	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(jsonBytes))
+	assert.Equal(t, expectedRequest, request)
 }
 
-func TestRequestBuilderBuilderBasicJsonEncoding(t *testing.T) {
-	expectedJson := `{
-		"method": "PUT",
-		"path": "/foo/bar"
-	}`
+func TestNewRequestBuilder_Build(t *testing.T) {
+	expectedRequest := mock.Request{
+		Method: http.MethodPut,
+		Path:   "/foo/bar",
+	}
 
-	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
+	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar").Build()
 
-	jsonBytes, err := json.Marshal(request)
-
-	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(jsonBytes))
+	assert.Equal(t, expectedRequest, request)
 }
 
-func TestRequestBuilderWithQueryParamsJsonEncoding(t *testing.T) {
-	expectedJson := `{
-		"method": "PUT",
-		"path": "/foo/bar",
-		"query_params": {
-            "limit": ["10"],
-            "filters": ["red", "green"]
-		}
-	}`
+func TestNewRequestBuilder_AddQueryParam_Build(t *testing.T) {
+	expectedQueryParams := map[string][]string{
+		"limit":   {"10"},
+		"filters": {"red", "green"},
+	}
+	expectedRequest := mock.Request{
+		Method:      http.MethodPut,
+		Path:        "/foo/bar",
+		QueryParams: expectedQueryParams,
+	}
 
-	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
-	request.AddQueryParam("limit", "10")
-	request.AddQueryParam("filters", "red", "green")
+	requestBuilder := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
+	requestBuilder.AddQueryParam("limit", "10")
+	requestBuilder.AddQueryParam("filters", "red", "green")
+	request := requestBuilder.Build()
 
-	jsonBytes, err := json.Marshal(request)
-
-	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(jsonBytes))
+	assert.Equal(t, expectedRequest, request)
 }
 
-func TestRequestBuilderWithHeadersJsonEncoding(t *testing.T) {
-	expectedJson := `{
-		"method": "PUT",
-		"path": "/foo/bar",
-		"headers": {
-			"Content-Type": ["application/json", "application/vnd.api+json"],
-			"Authorization": ["Bearer sv2361fr1o8ph3oin"]
-		}
-	}`
+func TestNewRequestBuilder_AddHeader_Build(t *testing.T) {
+	expectedHeaders := map[string][]string{
+		"Content-Type":  {"application/json", "application/vnd.api+json"},
+		"Authorization": {"Bearer sv2361fr1o8ph3oin"},
+	}
+	expectedRequest := mock.Request{
+		Method:  http.MethodPut,
+		Path:    "/foo/bar",
+		Headers: expectedHeaders,
+	}
 
-	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
-	request.AddHeader("Content-Type", "application/json", "application/vnd.api+json")
-	request.AddHeader("Authorization", "Bearer sv2361fr1o8ph3oin")
+	requestBuilder := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
+	requestBuilder.AddHeader("Content-Type", "application/json", "application/vnd.api+json")
+	requestBuilder.AddHeader("Authorization", "Bearer sv2361fr1o8ph3oin")
+	request := requestBuilder.Build()
 
-	jsonBytes, err := json.Marshal(request)
-
-	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(jsonBytes))
+	assert.Equal(t, expectedRequest, request)
 }
 
-func TestRequestBuilderWithJsonBodyEncoding(t *testing.T) {
+func TestNewRequestBuilder_AddJsonBody_Build(t *testing.T) {
+	expectedReqBody := mock.RequestBody{
+		Matcher: "ShouldEqualJSON",
+		Value:   "{\"name\": \"John Smith\", \"uuid\": \"daa7b90d-9429-4d7a-9304-edc41ff44a6d\", \"rank\": 10}",
+	}
+	expectedRequest := mock.Request{
+		Method: http.MethodPut,
+		Path:   "/foo/bar",
+		Body:   &expectedReqBody,
+	}
+
 	jsonBody := `{"name": "John Smith", "uuid": "daa7b90d-9429-4d7a-9304-edc41ff44a6d", "rank": 10}`
-	expectedJson := `{
-		"method": "PUT",
-		"path": "/foo/bar",
-		"body": {
-			"matcher": "ShouldEqualJSON",
-			"value": "{\"name\": \"John Smith\", \"uuid\": \"daa7b90d-9429-4d7a-9304-edc41ff44a6d\", \"rank\": 10}"
-		}
-	}`
 
-	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
-	request.AddJsonBody(jsonBody)
+	requestBuilder := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
+	requestBuilder.AddJsonBody(jsonBody)
+	request := requestBuilder.Build()
 
-	jsonBytes, err := json.Marshal(request)
-	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(jsonBytes))
+	assert.Equal(t, expectedRequest, request)
 }
 
 func TestNewRequestBuilder_AddBearerAuthToken(t *testing.T) {
-	bearerToken := "sv2361fr1o8ph3oin"
-	expectedJson := `{
-		"method": "PUT",
-		"path": "/foo/bar",
-		"headers": {
-			"Authorization": ["Bearer sv2361fr1o8ph3oin"]
-		}
-	}`
+	expectedHeaders := map[string][]string{
+		"Authorization": {"Bearer sv2361fr1o8ph3oin"},
+	}
+	expectedRequest := mock.Request{
+		Method:  http.MethodPut,
+		Path:    "/foo/bar",
+		Headers: expectedHeaders,
+	}
 
-	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
-	request.AddBearerAuthToken(bearerToken)
+	requestBuilder := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
+	requestBuilder.AddBearerAuthToken("sv2361fr1o8ph3oin")
+	request := requestBuilder.Build()
 
-	jsonBytes, err := json.Marshal(request)
-
-	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(jsonBytes))
+	assert.Equal(t, expectedRequest, request)
 }
 
 func TestNewRequestBuilder_AddBasicAuth(t *testing.T) {
 	username := "admin"
 	password := "password"
-	expectedJson := `{
-		"method": "PUT",
-		"path": "/foo/bar",
-		"headers": {
-			"Authorization": ["Basic YWRtaW46cGFzc3dvcmQ="]
-		}
-	}`
 
-	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
-	request.AddBasicAuth(username, password)
+	expectedHeaders := map[string][]string{
+		"Authorization": {"Basic YWRtaW46cGFzc3dvcmQ="},
+	}
+	expectedRequest := mock.Request{
+		Method:  http.MethodPut,
+		Path:    "/foo/bar",
+		Headers: expectedHeaders,
+	}
 
-	jsonBytes, err := json.Marshal(request)
+	requestBuilder := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
+	requestBuilder.AddBasicAuth(username, password)
+	request := requestBuilder.Build()
 
-	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(jsonBytes))
+	assert.Equal(t, expectedRequest, request)
 }

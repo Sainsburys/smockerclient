@@ -1,20 +1,29 @@
 package mock
 
-import (
-	"encoding/json"
-)
+import "encoding/json"
 
-type Request interface {
-	ToRequestJson() ([]byte, error)
+type Request struct {
+	Method      string              `json:"method"`
+	Path        string              `json:"path"`
+	QueryParams map[string][]string `json:"query_params,omitempty"`
+	Headers     map[string][]string `json:"headers,omitempty"`
+	Body        *RequestBody        `json:"body,omitempty"`
 }
 
-type Response interface {
-	ToResponseJson() ([]byte, error)
+type RequestBody struct {
+	Matcher string `json:"matcher"`
+	Value   string `json:"value"`
+}
+
+type Response struct {
+	Status  int                 `json:"status"`
+	Headers map[string][]string `json:"headers,omitempty"`
+	Body    string              `json:"body,omitempty"`
 }
 
 type Definition struct {
-	Request  Request
-	Response Response
+	Request  Request  `json:"request"`
+	Response Response `json:"response"`
 }
 
 func NewDefinition(req Request, resp Response) Definition {
@@ -25,19 +34,5 @@ func NewDefinition(req Request, resp Response) Definition {
 }
 
 func (d Definition) ToMockDefinitionJson() ([]byte, error) {
-
-	reqJson, _ := d.Request.ToRequestJson()
-	respJson, _ := d.Response.ToResponseJson()
-
-	type mock struct {
-		Request  json.RawMessage `json:"request"`
-		Response json.RawMessage `json:"response"`
-	}
-
-	mockDefinition := mock{
-		Request:  reqJson,
-		Response: respJson,
-	}
-
-	return json.Marshal(mockDefinition)
+	return json.Marshal(d)
 }
