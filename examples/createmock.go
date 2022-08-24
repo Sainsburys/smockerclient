@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/churmd/smockerclient"
 	"github.com/churmd/smockerclient/mock"
@@ -16,23 +17,22 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Start a new session for your new mocks
 	err = instance.StartSession("SmockerClientSession")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	exampleMockDefinition := `{
-	   "request": {
-		  "method": "GET",
-		  "path": "/example"
-	   },
-	   "response": {
-		  "status": 200,
-		  "body": "{\"status\": \"OK\"}"
-	   }
-	}`
-	jsonMock := mock.NewRawJsonDefinition(exampleMockDefinition)
-	err = instance.AddMock(jsonMock)
+	// Add a healthcheck mock
+	request := mock.NewRequestBuilder(http.MethodGet, "/healthcheck")
+	request.AddHeader("Accept", "application/json")
+
+	response := mock.NewResponseBuilder(http.StatusOK)
+	response.AddBody(`{"status": "OK"}`)
+
+	mockDefinition := mock.NewDefinition(request, response)
+
+	err = instance.AddMock(mockDefinition)
 	if err != nil {
 		log.Fatal(err)
 	}

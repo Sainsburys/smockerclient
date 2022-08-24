@@ -1,6 +1,7 @@
 package mock_test
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,10 +9,18 @@ import (
 	"github.com/churmd/smockerclient/mock"
 )
 
-func TestNewResponseBuilder_defaultsTo200Response(t *testing.T) {
-	expectedJson := `{"status": 200}`
+func TestResponseBuilder_ToResponseJson(t *testing.T) {
+	expectedJson := `{
+		"status": 200,
+		"headers": {
+			"Content-Type": ["application/json"]
+		},
+		"body": "{\"status\": \"OK\"}"
+	}`
 
-	responseBuilder := mock.NewResponseBuilder()
+	responseBuilder := mock.NewResponseBuilder(http.StatusOK)
+	responseBuilder.AddBody(`{"status": "OK"}`)
+	responseBuilder.AddHeader("Content-Type", "application/json")
 
 	jsonBytes, err := responseBuilder.ToResponseJson()
 
@@ -19,10 +28,43 @@ func TestNewResponseBuilder_defaultsTo200Response(t *testing.T) {
 	assert.JSONEq(t, expectedJson, string(jsonBytes))
 }
 
-func TestNewNoContentResponse_ToResponseJson_CreatesResponseWithStatus204(t *testing.T) {
-	expectedJson := `{"status": 204}`
+func TestNewResponseBuilder(t *testing.T) {
+	expectedJson := `{"status": 200}`
 
-	responseBuilder := mock.NewNoContentResponse()
+	responseBuilder := mock.NewResponseBuilder(http.StatusOK)
+
+	jsonBytes, err := responseBuilder.ToResponseJson()
+
+	assert.NoError(t, err)
+	assert.JSONEq(t, expectedJson, string(jsonBytes))
+}
+
+func TestNewResponseBuilder_AddHeader(t *testing.T) {
+	expectedJson := `{
+		"status": 200,
+		"headers": {
+			"Content-Type": ["application/json", "application/vnd.api+json"]
+		}
+	}`
+
+	responseBuilder := mock.NewResponseBuilder(http.StatusOK)
+	responseBuilder.AddHeader("Content-Type", "application/json", "application/vnd.api+json")
+
+	jsonBytes, err := responseBuilder.ToResponseJson()
+
+	assert.NoError(t, err)
+	assert.JSONEq(t, expectedJson, string(jsonBytes))
+}
+
+func TestNewResponseBuilder_AddBody(t *testing.T) {
+	expectedJson := `{
+		"status": 200,
+		"body": "{\"status\": \"OK\"}"
+	}`
+	jsonBody := `{"status": "OK"}`
+
+	responseBuilder := mock.NewResponseBuilder(http.StatusOK)
+	responseBuilder.AddBody(jsonBody)
 
 	jsonBytes, err := responseBuilder.ToResponseJson()
 

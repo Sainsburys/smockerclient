@@ -7,8 +7,8 @@ import (
 )
 
 type RequestBody struct {
-	Matcher string `json:"matcher"`
-	Value   string `json:"value"`
+	Matcher string
+	Value   string
 }
 
 func NewJsonRequestBody(jsonBody string) RequestBody {
