@@ -41,7 +41,7 @@ func TestRequestBuilder_ToRequestJson(t *testing.T) {
 	}`
 	request.AddJsonBody(jsonBody)
 
-	jsonBytes, err := json.Marshal(request)
+	jsonBytes, err := request.ToRequestJson()
 
 	assert.NoError(t, err)
 	assert.JSONEq(t, expectedJson, string(jsonBytes))
