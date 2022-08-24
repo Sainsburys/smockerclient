@@ -46,7 +46,7 @@ func TestStartSession(t *testing.T) {
 	assert.Equal(t, 1, serverCallCount)
 }
 
-func TestStartSessionWithNameThatNeedsUrlEscaping(t *testing.T) {
+func TestStartSession_WithNameThatNeedsUrlEscaping(t *testing.T) {
 	serverCallCount := 0
 	sessionName := `test !@£$%^&*()`
 
@@ -77,7 +77,7 @@ func TestStartSessionWithNameThatNeedsUrlEscaping(t *testing.T) {
 	assert.Equal(t, 1, serverCallCount)
 }
 
-func TestStartSessionReturnsErrorWhenServerDoesNotReturn200(t *testing.T) {
+func TestStartSession_WhenServerDoesNotReturn200_ReturnsError(t *testing.T) {
 	sessionName := "my-new-session"
 
 	server, serverCallCount := newBadResponseServer()
@@ -127,7 +127,7 @@ func TestAddMock(t *testing.T) {
 	assert.Equal(t, 1, serverCallCount)
 }
 
-func TestAddMockReturnsErrorWhenMockJsonConversionErrors(t *testing.T) {
+func TestAddMock_WhenMockJsonConversionErrors_ReturnsError(t *testing.T) {
 	mockError := errors.New("fails mock json conversion")
 	fakeMock := FakeMock{Error: mockError}
 
@@ -149,7 +149,7 @@ func TestAddMockReturnsErrorWhenMockJsonConversionErrors(t *testing.T) {
 	assert.ErrorContains(t, err, expectedError.Error())
 }
 
-func TestAddMockReturnsErrorWhenServerDoesNotReturn200(t *testing.T) {
+func TestAddMock_WhenServerDoesNotReturn200_ReturnsError(t *testing.T) {
 	expectedJson := `{"example": 1234}`
 	fakeMock := FakeMock{Json: expectedJson}
 
@@ -190,7 +190,7 @@ func TestResetAllSessionsAndMocks(t *testing.T) {
 	assert.Equal(t, 1, serverCallCount)
 }
 
-func TestInstance_ResetAllSessionsAndMocks_ReturnsErrorWhenServerDoesNotReturn200(t *testing.T) {
+func TestResetAllSessionsAndMocks_WhenServerDoesNotReturn200_ReturnsError(t *testing.T) {
 	server, serverCallCount := newBadResponseServer()
 	defer server.Close()
 
