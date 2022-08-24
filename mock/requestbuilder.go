@@ -6,11 +6,11 @@ import (
 )
 
 type RequestBuilder struct {
-	Method      string       `json:"method"`
-	Path        string       `json:"path"`
-	QueryParams MultiMap     `json:"query_params,omitempty"`
-	Headers     MultiMap     `json:"headers,omitempty"`
-	Body        *RequestBody `json:"body,omitempty"`
+	Method      string              `json:"method"`
+	Path        string              `json:"path"`
+	QueryParams map[string][]string `json:"query_params,omitempty"`
+	Headers     map[string][]string `json:"headers,omitempty"`
+	Body        *RequestBody        `json:"body,omitempty"`
 }
 
 func NewRequestBuilder(method, path string) RequestBuilder {
@@ -31,7 +31,7 @@ func (rb *RequestBuilder) AddQueryParam(key string, values ...string) {
 
 func (rb *RequestBuilder) initialiseQueryParams() {
 	if rb.QueryParams == nil {
-		rb.QueryParams = make(MultiMap, 1)
+		rb.QueryParams = make(map[string][]string, 1)
 	}
 }
 
@@ -59,7 +59,7 @@ func (rb *RequestBuilder) AddHeader(key string, values ...string) {
 
 func (rb *RequestBuilder) initialiseHeaders() {
 	if rb.Headers == nil {
-		rb.Headers = make(MultiMap, 1)
+		rb.Headers = make(map[string][]string, 1)
 	}
 }
 

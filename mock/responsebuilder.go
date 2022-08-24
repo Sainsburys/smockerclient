@@ -5,9 +5,9 @@ import (
 )
 
 type ResponseBuilder struct {
-	Status  int      `json:"status"`
-	Headers MultiMap `json:"headers,omitempty"`
-	Body    string   `json:"body,omitempty"`
+	Status  int                 `json:"status"`
+	Headers map[string][]string `json:"headers,omitempty"`
+	Body    string              `json:"body,omitempty"`
 }
 
 func NewResponseBuilder(httpStatus int) ResponseBuilder {
@@ -27,7 +27,7 @@ func (rb *ResponseBuilder) AddHeader(key string, values ...string) {
 
 func (rb *ResponseBuilder) initialiseHeaders() {
 	if rb.Headers == nil {
-		rb.Headers = make(MultiMap, 1)
+		rb.Headers = make(map[string][]string, 1)
 	}
 }
 
