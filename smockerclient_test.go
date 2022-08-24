@@ -1,6 +1,8 @@
 package smockerclient_test
 
 import (
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -125,6 +127,28 @@ func TestAddMock(t *testing.T) {
 	assert.Equal(t, 1, serverCallCount)
 }
 
+func TestAddMockReturnsErrorWhenMockJsonConversionErrors(t *testing.T) {
+	mockError := errors.New("fails mock json conversion")
+	fakeMock := FakeMock{Error: mockError}
+
+	serverCallCount := 0
+	server := httptest.NewServer(
+		http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				serverCallCount++
+			},
+		),
+	)
+	defer server.Close()
+
+	smockerInstance := smockerclient.NewInstance(server.URL)
+	err := smockerInstance.AddMock(fakeMock)
+
+	assert.Equal(t, 0, serverCallCount)
+	expectedError := fmt.Errorf("unable to convert mock to json when running ToMockDefinitionJson. %w", mockError)
+	assert.ErrorContains(t, err, expectedError.Error())
+}
+
 func TestAddMockReturnsErrorWhenServerDoesNotReturn200(t *testing.T) {
 	expectedJson := `{"example": 1234}`
 	fakeMock := FakeMock{Json: expectedJson}
@@ -194,9 +218,10 @@ func newBadResponseServer() (*httptest.Server, *int) {
 }
 
 type FakeMock struct {
-	Json string
+	Json  string
+	Error error
 }
 
 func (fm FakeMock) ToMockDefinitionJson() ([]byte, error) {
-	return []byte(fm.Json), nil
+	return []byte(fm.Json), fm.Error
 }

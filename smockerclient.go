@@ -120,7 +120,7 @@ func (i Instance) createAddMockRequest(mock MockDefinition) (*http.Request, erro
 func createAddMockRequestBody(mock MockDefinition) (*bytes.Buffer, error) {
 	mockJson, err := mock.ToMockDefinitionJson()
 	if err != nil {
-		return nil, fmt.Errorf("unable to convert mock to json when running ToMockDefinitionJson %w", err)
+		return nil, fmt.Errorf("unable to convert mock to json when running ToMockDefinitionJson. %w", err)
 	}
 
 	// Smocker API always expects a list of mocks to be sent
@@ -128,7 +128,7 @@ func createAddMockRequestBody(mock MockDefinition) (*bytes.Buffer, error) {
 	body := &bytes.Buffer{}
 	err = json.NewEncoder(body).Encode(mocks)
 	if err != nil {
-		return nil, fmt.Errorf("unable to create request body bytes from mock %w", err)
+		return nil, fmt.Errorf("unable to create request body bytes from mock. %w", err)
 	}
 
 	return body, nil
