@@ -12,7 +12,7 @@ func TestRawJsonDefinition_ToMockJson(t *testing.T) {
 	json := jsonForMock()
 
 	jsonMock := mock.NewRawJsonDefinition(json)
-	definition, err := jsonMock.ToMockJson()
+	definition, err := jsonMock.ToMockDefinitionJson()
 
 	assert.NoError(t, err)
 	assert.JSONEq(t, json, string(definition))

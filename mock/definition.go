@@ -24,7 +24,7 @@ func NewDefinition(req Request, resp Response) Definition {
 	}
 }
 
-func (d Definition) ToMockJson() ([]byte, error) {
+func (d Definition) ToMockDefinitionJson() ([]byte, error) {
 
 	reqJson, _ := d.Request.ToRequestJson()
 	respJson, _ := d.Response.ToResponseJson()

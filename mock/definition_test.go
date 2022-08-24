@@ -34,7 +34,7 @@ func TestDefinition_ToMockJson(t *testing.T) {
 
 	definition := mock.NewDefinition(fakeReq, fakeResp)
 
-	actualJson, err := definition.ToMockJson()
+	actualJson, err := definition.ToMockDefinitionJson()
 
 	assert.NoError(t, err)
 	assert.JSONEq(t, expectedJson, string(actualJson))

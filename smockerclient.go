@@ -8,8 +8,8 @@ import (
 	"net/http"
 )
 
-type Mock interface {
-	ToMockJson() ([]byte, error)
+type MockDefinition interface {
+	ToMockDefinitionJson() ([]byte, error)
 }
 
 type Instance struct {
@@ -73,7 +73,7 @@ func (i Instance) createSessionRequest(name string) (*http.Request, error) {
 	return req, nil
 }
 
-func (i Instance) AddMock(mock Mock) error {
+func (i Instance) AddMock(mock MockDefinition) error {
 	resp, err := i.sendAddMockRequest(mock)
 	if err != nil {
 		return fmt.Errorf("smockerclient unable to add a new mock. %w", err)
@@ -87,7 +87,7 @@ func (i Instance) AddMock(mock Mock) error {
 	return nil
 }
 
-func (i Instance) sendAddMockRequest(mock Mock) (*http.Response, error) {
+func (i Instance) sendAddMockRequest(mock MockDefinition) (*http.Response, error) {
 	req, err := i.createAddMockRequest(mock)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create request. %w", err)
@@ -101,7 +101,7 @@ func (i Instance) sendAddMockRequest(mock Mock) (*http.Response, error) {
 	return resp, nil
 }
 
-func (i Instance) createAddMockRequest(mock Mock) (*http.Request, error) {
+func (i Instance) createAddMockRequest(mock MockDefinition) (*http.Request, error) {
 	body, err := createAddMockRequestBody(mock)
 	if err != nil {
 		return nil, err
@@ -117,10 +117,10 @@ func (i Instance) createAddMockRequest(mock Mock) (*http.Request, error) {
 	return req, nil
 }
 
-func createAddMockRequestBody(mock Mock) (*bytes.Buffer, error) {
-	mockJson, err := mock.ToMockJson()
+func createAddMockRequestBody(mock MockDefinition) (*bytes.Buffer, error) {
+	mockJson, err := mock.ToMockDefinitionJson()
 	if err != nil {
-		return nil, fmt.Errorf("unable to convert mock to json when running ToMockJson %w", err)
+		return nil, fmt.Errorf("unable to convert mock to json when running ToMockDefinitionJson %w", err)
 	}
 
 	// Smocker API always expects a list of mocks to be sent

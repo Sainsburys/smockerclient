@@ -24,7 +24,7 @@ func TestRequestBuilder_ToRequestJson(t *testing.T) {
 		},
 		"body": {
 			"matcher": "ShouldEqualJSON",
-			"value": "{\"name\":\"John Smith\",\"uuid\":\"daa7b90d-9429-4d7a-9304-edc41ff44a6d\",\"rank\":10}"
+			"value": "{\"name\": \"John Smith\", \"uuid\": \"daa7b90d-9429-4d7a-9304-edc41ff44a6d\", \"rank\": 10}"
 		}
 	}`
 
@@ -34,11 +34,7 @@ func TestRequestBuilder_ToRequestJson(t *testing.T) {
 	request.AddHeader("Content-Type", "application/json", "application/vnd.api+json")
 	request.AddHeader("Authorization", "Bearer sv2361fr1o8ph3oin")
 
-	jsonBody := `{
-		"name": "John Smith",
-		"uuid": "daa7b90d-9429-4d7a-9304-edc41ff44a6d",
-		"rank": 10
-	}`
+	jsonBody := `{"name": "John Smith", "uuid": "daa7b90d-9429-4d7a-9304-edc41ff44a6d", "rank": 10}`
 	request.AddJsonBody(jsonBody)
 
 	jsonBytes, err := request.ToRequestJson()
@@ -102,17 +98,13 @@ func TestRequestBuilderWithHeadersJsonEncoding(t *testing.T) {
 }
 
 func TestRequestBuilderWithJsonBodyEncoding(t *testing.T) {
-	jsonBody := `{
-		"name": "John Smith",
-		"uuid": "daa7b90d-9429-4d7a-9304-edc41ff44a6d",
-		"rank": 10
-	}`
+	jsonBody := `{"name": "John Smith", "uuid": "daa7b90d-9429-4d7a-9304-edc41ff44a6d", "rank": 10}`
 	expectedJson := `{
 		"method": "PUT",
 		"path": "/foo/bar",
 		"body": {
 			"matcher": "ShouldEqualJSON",
-			"value": "{\"name\":\"John Smith\",\"uuid\":\"daa7b90d-9429-4d7a-9304-edc41ff44a6d\",\"rank\":10}"
+			"value": "{\"name\": \"John Smith\", \"uuid\": \"daa7b90d-9429-4d7a-9304-edc41ff44a6d\", \"rank\": 10}"
 		}
 	}`
 

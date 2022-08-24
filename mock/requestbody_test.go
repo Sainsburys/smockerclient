@@ -9,12 +9,12 @@ import (
 	"github.com/churmd/smockerclient/mock"
 )
 
-func TestNewJsonBody_JsonEncoding(t *testing.T) {
-	expectedJson := `{
-		"matcher": "ShouldEqualJSON",
-		"value": "{\"name\":\"John Smith\",\"uuid\":\"daa7b90d-9429-4d7a-9304-edc41ff44a6d\",\"rank\":10}"
-	}`
+type TestRequestBody struct {
+	Matcher string `json:"matcher"`
+	Value   string `json:"value"`
+}
 
+func TestNewJsonBody_JsonEncoding(t *testing.T) {
 	jsonBody := `{
 		"name": "John Smith",
 		"uuid": "daa7b90d-9429-4d7a-9304-edc41ff44a6d",
@@ -26,15 +26,10 @@ func TestNewJsonBody_JsonEncoding(t *testing.T) {
 	actualJson, err := json.Marshal(body)
 
 	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(actualJson))
-}
 
-func TestNewJsonBody_JsonEncodingWithBadBodyErrors(t *testing.T) {
-	jsonBody := `{wrong: "json"}`
-
-	body := mock.NewJsonRequestBody(jsonBody)
-
-	_, err := json.Marshal(body)
-
-	assert.ErrorContains(t, err, "unable to compact body json")
+	var testReqBody TestRequestBody
+	err = json.Unmarshal(actualJson, &testReqBody)
+	assert.NoError(t, err)
+	assert.Equal(t, "ShouldEqualJSON", testReqBody.Matcher)
+	assert.JSONEq(t, jsonBody, testReqBody.Value)
 }
