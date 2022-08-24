@@ -21,7 +21,7 @@ func TestNewJsonBody_JsonEncoding(t *testing.T) {
 		"rank": 10
 	}`
 
-	body := mock.NewJsonBody(jsonBody)
+	body := mock.NewJsonRequestBody(jsonBody)
 
 	actualJson, err := json.Marshal(body)
 
@@ -32,7 +32,7 @@ func TestNewJsonBody_JsonEncoding(t *testing.T) {
 func TestNewJsonBody_JsonEncodingWithBadBodyErrors(t *testing.T) {
 	jsonBody := `{wrong: "json"}`
 
-	body := mock.NewJsonBody(jsonBody)
+	body := mock.NewJsonRequestBody(jsonBody)
 
 	_, err := json.Marshal(body)
 

@@ -6,11 +6,11 @@ import (
 )
 
 type RequestBuilder struct {
-	Method      string   `json:"method"`
-	Path        string   `json:"path"`
-	QueryParams MultiMap `json:"query_params,omitempty"`
-	Headers     MultiMap `json:"headers,omitempty"`
-	Body        *Body    `json:"body,omitempty"`
+	Method      string       `json:"method"`
+	Path        string       `json:"path"`
+	QueryParams MultiMap     `json:"query_params,omitempty"`
+	Headers     MultiMap     `json:"headers,omitempty"`
+	Body        *RequestBody `json:"body,omitempty"`
 }
 
 func NewRequestBuilder(method, path string) RequestBuilder {
@@ -64,6 +64,6 @@ func (rb *RequestBuilder) initialiseHeaders() {
 }
 
 func (rb *RequestBuilder) AddJsonBody(jsonBody string) {
-	body := NewJsonBody(jsonBody)
+	body := NewJsonRequestBody(jsonBody)
 	rb.Body = &body
 }

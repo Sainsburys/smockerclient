@@ -6,19 +6,19 @@ import (
 	"fmt"
 )
 
-type Body struct {
+type RequestBody struct {
 	Matcher string `json:"matcher"`
 	Value   string `json:"value"`
 }
 
-func NewJsonBody(jsonBody string) Body {
-	return Body{
+func NewJsonRequestBody(jsonBody string) RequestBody {
+	return RequestBody{
 		Matcher: "ShouldEqualJSON",
 		Value:   jsonBody,
 	}
 }
 
-func (b Body) MarshalJSON() ([]byte, error) {
+func (b RequestBody) MarshalJSON() ([]byte, error) {
 	compactValue, err := compactJson(b.Value)
 	if err != nil {
 		return nil, fmt.Errorf("unable to compact body json %s. %w", b.Value, err)
