@@ -32,13 +32,13 @@ func TestRequestBuilder_Build(t *testing.T) {
 
 	jsonBody := `{"name": "John Smith", "uuid": "daa7b90d-9429-4d7a-9304-edc41ff44a6d", "rank": 10}`
 
-	requestBuilder := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
-	requestBuilder.AddQueryParam("limit", "10")
-	requestBuilder.AddQueryParam("filters", "red", "green")
-	requestBuilder.AddHeader("Content-Type", "application/json", "application/vnd.api+json")
-	requestBuilder.AddHeader("Authorization", "Bearer sv2361fr1o8ph3oin")
-	requestBuilder.AddJsonBody(jsonBody)
-	request := requestBuilder.Build()
+	request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar").
+		AddQueryParam("limit", "10").
+		AddQueryParam("filters", "red", "green").
+		AddHeader("Content-Type", "application/json", "application/vnd.api+json").
+		AddHeader("Authorization", "Bearer sv2361fr1o8ph3oin").
+		AddJsonBody(jsonBody).
+		Build()
 
 	assert.Equal(t, expectedRequest, request)
 }

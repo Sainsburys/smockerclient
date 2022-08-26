@@ -24,13 +24,11 @@ func main() {
 	}
 
 	// Add a healthcheck mock
-	requestBuilder := mock.NewRequestBuilder(http.MethodGet, "/healthcheck")
-	requestBuilder.AddHeader("Accept", "application/json")
-	request := requestBuilder.Build()
+	request := mock.NewRequestBuilder(http.MethodGet, "/healthcheck").
+		AddHeader("Accept", "application/json").
+		Build()
 
-	responseBuilder := mock.NewResponseBuilder(http.StatusOK)
-	responseBuilder.AddBody(`{"status": "OK"}`)
-	response := responseBuilder.Build()
+	response := mock.NewResponseBuilder(http.StatusOK).AddBody(`{"status": "OK"}`).Build()
 
 	mockDefinition := mock.NewDefinition(request, response)
 

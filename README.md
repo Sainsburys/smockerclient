@@ -15,27 +15,24 @@ import (
 )
 
 func main() {
-	// Set Smocker server details, default uses http://localhost:8081
-	instance := smockerclient.DefaultInstance()
+  instance := smockerclient.DefaultInstance()
 
-	// Clear any old sessions and mocks
-	_ = instance.ResetAllSessionsAndMocks()
+  // Clear any old sessions and mocks
+  _ = instance.ResetAllSessionsAndMocks()
 
-	// Start a new session for your new mocks
-	_ = instance.StartSession("SmockerClientSession")
+  // Start a new session for your new mocks
+  _ = instance.StartSession("SmockerClientSession")
 
-	// Add a healthcheck mock
-	requestBuilder := mock.NewRequestBuilder(http.MethodGet, "/healthcheck")
-	requestBuilder.AddHeader("Accept", "application/json")
-	request := requestBuilder.Build()
+  // Add a healthcheck mock
+  request := mock.NewRequestBuilder(http.MethodGet, "/healthcheck").
+    AddHeader("Accept", "application/json").
+    Build()
 
-	responseBuilder := mock.NewResponseBuilder(http.StatusOK)
-	responseBuilder.AddBody(`{"status": "OK"}`)
-	response := responseBuilder.Build()
+  response := mock.NewResponseBuilder(http.StatusOK).AddBody(`{"status": "OK"}`).Build()
 
-	mockDefinition := mock.NewDefinition(request, response)
+  mockDefinition := mock.NewDefinition(request, response)
 
-	_ = instance.AddMock(mockDefinition)
+  _ = instance.AddMock(mockDefinition)
 }
 ```
 
@@ -55,18 +52,18 @@ Builders for the request and response part of the mock definition are provided i
 to be setup in a more programmatic way.
 
 ```go
-requestBuilder := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
-requestBuilder.AddQueryParam("limit", "10")
-requestBuilder.AddQueryParam("filters", "red", "green")
-requestBuilder.AddHeader("Content-Type", "application/json", "application/vnd.api+json")
-requestBuilder.AddBearerAuthToken("sv2361fr1o8ph3oin")
-requestBuilder.AddJsonBody(`{"example": "body"`)
-request := requestBuilder.Build()
+request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar").
+    AddQueryParam("limit", "10").
+    AddQueryParam("filters", "red", "green").
+    AddHeader("Content-Type", "application/json", "application/vnd.api+json").
+    AddBearerAuthToken("sv2361fr1o8ph3oin").
+    AddJsonBody(`{"example": "body"`).
+    Build()
 
-responseBuilder := mock.NewResponseBuilder(http.StatusOK)
-responseBuilder.AddBody(`{"status": "OK"}`)
-responseBuilder.AddHeader("Content-Type", "application/json")
-response := responseBuilder.Build()
+response := mock.NewResponseBuilder(http.StatusOK).
+    AddBody(`{"status": "OK"}`).
+    AddHeader("Content-Type", "application/json").
+    Build()
 
 mockDefinition := mock.NewDefinition(request, response)
 ```

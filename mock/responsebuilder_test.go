@@ -18,10 +18,10 @@ func TestResponseBuilder_Build(t *testing.T) {
 		Body: "{\"status\": \"OK\"}",
 	}
 
-	responseBuilder := mock.NewResponseBuilder(http.StatusOK)
-	responseBuilder.AddBody(`{"status": "OK"}`)
-	responseBuilder.AddHeader("Content-Type", "application/json")
-	response := responseBuilder.Build()
+	response := mock.NewResponseBuilder(http.StatusOK).
+		AddBody(`{"status": "OK"}`).
+		AddHeader("Content-Type", "application/json").
+		Build()
 
 	assert.Equal(t, expectedResponse, response)
 }
