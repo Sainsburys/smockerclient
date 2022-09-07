@@ -1,5 +1,7 @@
 # smocker-client
 
+[![GoDoc](https://godoc.org/github.com/churmd/smockerclient?status.svg)](https://pkg.go.dev/github.com/churmd/smockerclient)
+
 A go client to manage [Smocker](https://smocker.dev/) servers.
 
 Example:
