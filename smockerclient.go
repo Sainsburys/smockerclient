@@ -8,6 +8,9 @@ import (
 	"net/http"
 )
 
+// MockDefinition Allows multiple styles of mock creation to be used and custom extension.
+// ToMockDefinitionJson must return json conforming to the smocker mock definition
+// https://smocker.dev/technical-documentation/mock-definition.html as bytes.
 type MockDefinition interface {
 	ToMockDefinitionJson() ([]byte, error)
 }
@@ -17,6 +20,7 @@ type Instance struct {
 	httpClient *http.Client
 }
 
+// DefaultInstance Creates an instance that will connect to the default smocker server location, http://localhost:8081
 func DefaultInstance() Instance {
 	return Instance{
 		url:        "http://localhost:8081",
@@ -24,6 +28,7 @@ func DefaultInstance() Instance {
 	}
 }
 
+// NewInstance Creates an instance that will connect to the smocker server using the url provided.
 func NewInstance(url string) Instance {
 	return Instance{
 		url:        url,
@@ -31,6 +36,8 @@ func NewInstance(url string) Instance {
 	}
 }
 
+// StartSession Starts a new session on the Smocker server with the given name. New mocks will be added to the latest
+// session started.
 func (i Instance) StartSession(name string) error {
 	resp, err := i.sendStartSessionRequest(name)
 	if err != nil {
@@ -73,6 +80,7 @@ func (i Instance) createSessionRequest(name string) (*http.Request, error) {
 	return req, nil
 }
 
+// AddMock Adds a new mock to the latest session on the Smocker server.
 func (i Instance) AddMock(mock MockDefinition) error {
 	resp, err := i.sendAddMockRequest(mock)
 	if err != nil {
@@ -134,6 +142,7 @@ func createAddMockRequestBody(mock MockDefinition) (*bytes.Buffer, error) {
 	return body, nil
 }
 
+// ResetAllSessionsAndMocks Clears the Smocker server of all sessions and mocks. Leaving it in a clean state
 func (i Instance) ResetAllSessionsAndMocks() error {
 	resp, err := i.sendResetAllSessionsAndMocksRequest()
 	if err != nil {
