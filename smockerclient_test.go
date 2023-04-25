@@ -201,6 +201,41 @@ func TestResetAllSessionsAndMocks_WhenServerDoesNotReturn200_ReturnsError(t *tes
 	assert.EqualError(t, err, "smockerclient unable to reset all the sessions and mocks. received status:400 and message:400 Bad Request")
 }
 
+func TestVerifyMocksInLatestSession_WhenAllMocksHaveBeenCalled_ReturnsNoError(t *testing.T) {
+	serverCallCount := 0
+
+	server := httptest.NewServer(
+		http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				serverCallCount++
+
+				assert.Equal(t, http.MethodPost, r.Method)
+				assert.Equal(t, "/sessions/verify", r.URL.Path)
+
+				resp := `{
+				  "mocks": {
+					"verified": true,
+					"all_used": true,
+					"message": "All mocks match expectations"
+				  },
+				  "history": {
+					"verified": true,
+					"message": "History is clean"
+				  }
+				}`
+				w.Write([]byte(resp))
+			},
+		),
+	)
+	defer server.Close()
+
+	smockerInstance := smockerclient.NewInstance(server.URL)
+	err := smockerInstance.VerifyMocksInLatestSession()
+
+	assert.NoError(t, err)
+	assert.Equal(t, 1, serverCallCount)
+}
+
 func newBadResponseServer() (*httptest.Server, *int) {
 	serverCallCount := 0
 

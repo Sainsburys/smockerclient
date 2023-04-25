@@ -181,6 +181,20 @@ func (i Instance) createResetAllSessionAndMocksRequest() (*http.Request, error) 
 	return request, nil
 }
 
+func (i Instance) VerifyMocksInLatestSession() error {
+
+	url := i.url + "/sessions/verify"
+	request, err := http.NewRequest(http.MethodPost, url, nil)
+	if err != nil {
+		// TODO
+		return err
+	}
+
+	_, _ = i.httpClient.Do(request)
+
+	return nil
+}
+
 func handleNon200Response(resp *http.Response) error {
 	if resp.StatusCode == http.StatusOK {
 		return nil
