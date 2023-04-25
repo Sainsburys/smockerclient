@@ -146,7 +146,7 @@ func createAddMockRequestBody(mock MockDefinition) (*bytes.Buffer, error) {
 func (i Instance) ResetAllSessionsAndMocks() error {
 	resp, err := i.sendResetAllSessionsAndMocksRequest()
 	if err != nil {
-		fmt.Errorf("smockerclient unable to reset all the sessions and mocks. %w", err)
+		return fmt.Errorf("smockerclient unable to reset all the sessions and mocks. %w", err)
 	}
 
 	err = handleNon200Response(resp)
