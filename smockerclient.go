@@ -3,6 +3,7 @@ package smockerclient
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -190,7 +191,22 @@ func (i Instance) VerifyMocksInLatestSession() error {
 		return err
 	}
 
-	_, _ = i.httpClient.Do(request)
+	response, err := i.httpClient.Do(request)
+	if err != nil {
+		// TODO
+		return err
+	}
+
+	var verifiedResp verifiedResponse
+	err = json.NewDecoder(response.Body).Decode(&verifiedResp)
+	if err != nil {
+		// TODO
+		return err
+	}
+
+	if !verifiedResp.Mocks.AllUsed {
+		return errors.New("not all mocks were used")
+	}
 
 	return nil
 }
@@ -207,4 +223,14 @@ func handleNon200Response(resp *http.Response) error {
 
 	return fmt.Errorf("received status:%d and message:%s", resp.StatusCode, body)
 
+}
+
+type verifiedResponse struct {
+	Mocks verifiedResponseMocks `json:"mocks"`
+}
+
+type verifiedResponseMocks struct {
+	Verified bool   `json:"verified"`
+	AllUsed  bool   `json:"all_used"`
+	Message  string `json:"message"`
 }

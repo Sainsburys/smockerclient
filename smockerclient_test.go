@@ -236,6 +236,182 @@ func TestVerifyMocksInLatestSession_WhenAllMocksHaveBeenCalled_ReturnsNoError(t 
 	assert.Equal(t, 1, serverCallCount)
 }
 
+func TestVerifyMocksInLatestSession_WhenSomeMocksHaveNotBeenCalled_ReturnsError(t *testing.T) {
+	serverCallCount := 0
+
+	server := httptest.NewServer(
+		http.HandlerFunc(
+			func(w http.ResponseWriter, r *http.Request) {
+				serverCallCount++
+
+				assert.Equal(t, http.MethodPost, r.Method)
+				assert.Equal(t, "/sessions/verify", r.URL.Path)
+
+				resp := `{
+				  "mocks": {
+					"verified": false,
+					"all_used": false,
+					"message": "Some mocks don't match expectations",
+					"failures": [
+					  {
+						"request": {
+						  "path": "/test",
+						  "method": "GET"
+						},
+						"response": {
+						  "body": "{\"message\": \"test2\"}\n",
+						  "status": 200,
+						  "headers": {
+							"Content-Type": ["application/json"]
+						  }
+						},
+						"context": {
+						  "times": 1
+						},
+						"state": {
+						  "id": "6ecbd8f8-e2a7-4119-9be6-ad5ec83c58b6",
+						  "times_count": 2,
+						  "creation_date": "2020-02-26T12:11:34.713399+01:00"
+						}
+					  },
+					  {
+						"request": {
+						  "path": "/test",
+						  "method": "GET"
+						},
+						"response": {
+						  "body": "{\"message\": \"test\"}\n",
+						  "status": 200,
+						  "headers": {
+							"Content-Type": ["application/json"]
+						  }
+						},
+						"context": {
+						  "times": 1
+						},
+						"state": {
+						  "id": "30266b21-77c0-48e6-b27e-5aa02d7defd8",
+						  "times_count": 2,
+						  "creation_date": "2020-02-26T12:11:34.713396+01:00"
+						}
+					  }
+					],
+					"unused": [
+					  {
+						"request": {
+						  "path": "/test",
+						  "method": "GET"
+						},
+						"response": {
+						  "status": 200
+						},
+						"context": {},
+						"state": {
+						  "id": "d9ce47d4-86b7-4cb5-b7e9-829063704cec",
+						  "times_count": 0,
+						  "creation_date": "2020-02-26T12:11:34.747289+01:00"
+						}
+					  }
+					]
+				  },
+				  "history": {
+					"verified": false,
+					"message": "There are errors in the history",
+					"failures": [
+					  {
+						"request": {
+						  "path": "/test",
+						  "method": "GET",
+						  "body": "",
+						  "headers": {
+							"Accept-Encoding": ["gzip"],
+							"Host": ["localhost:8080"],
+							"User-Agent": ["Go-http-client/1.1"]
+						  },
+						  "date": "2020-02-26T12:11:34.737809+01:00"
+						},
+						"response": {
+						  "status": 666,
+						  "body": {
+							"message": "Matching mock found but was exceeded",
+							"nearest": [
+							  {
+								"context": {
+								  "times": 1
+								},
+								"request": {
+								  "method": "GET",
+								  "path": "/test"
+								},
+								"response": {
+								  "body": "{\"message\": \"test2\"}\n",
+								  "headers": {
+									"Content-Type": ["application/json"]
+								  },
+								  "status": 200
+								},
+								"state": {
+								  "creation_date": "2020-02-26T12:11:34.713399+01:00",
+								  "id": "6ecbd8f8-e2a7-4119-9be6-ad5ec83c58b6",
+								  "times_count": 2
+								}
+							  },
+							  {
+								"context": {
+								  "times": 1
+								},
+								"request": {
+								  "method": "GET",
+								  "path": "/test"
+								},
+								"response": {
+								  "body": "{\"message\": \"test\"}\n",
+								  "headers": {
+									"Content-Type": ["application/json"]
+								  },
+								  "status": 200
+								},
+								"state": {
+								  "creation_date": "2020-02-26T12:11:34.713396+01:00",
+								  "id": "30266b21-77c0-48e6-b27e-5aa02d7defd8",
+								  "times_count": 2
+								}
+							  }
+							],
+							"request": {
+							  "body": "",
+							  "date": "2020-02-26T12:11:34.737814+01:00",
+							  "headers": {
+								"Accept-Encoding": ["gzip"],
+								"Host": ["localhost:8080"],
+								"User-Agent": ["Go-http-client/1.1"]
+							  },
+							  "method": "GET",
+							  "path": "/test"
+							}
+						  },
+						  "headers": {
+							"Content-Type": ["application/json; charset=UTF-8"]
+						  },
+						  "date": "2020-02-26T12:11:34.738625+01:00"
+						}
+					  }
+					]
+				  }
+				}`
+				w.Write([]byte(resp))
+			},
+		),
+	)
+	defer server.Close()
+
+	smockerInstance := smockerclient.NewInstance(server.URL)
+	err := smockerInstance.VerifyMocksInLatestSession()
+
+	assert.Error(t, err)
+	assert.Equal(t, 1, serverCallCount)
+}
+
 func newBadResponseServer() (*httptest.Server, *int) {
 	serverCallCount := 0
 
