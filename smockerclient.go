@@ -181,6 +181,8 @@ func (i Instance) createResetAllSessionAndMocksRequest() (*http.Request, error) 
 	return request, nil
 }
 
+// VerifyMocksInCurrentSession Checks all the mocks in the session have been called and that no other calls have been
+// made
 func (i Instance) VerifyMocksInCurrentSession() error {
 	resp, err := i.sendVerifySessionRequest()
 	if err != nil {
