@@ -181,6 +181,64 @@ func (i Instance) createResetAllSessionAndMocksRequest() (*http.Request, error) 
 	return request, nil
 }
 
+func (i Instance) VerifyMocksInCurrentSession() error {
+	resp, err := i.sendVerifySessionRequest()
+	if err != nil {
+		return fmt.Errorf("smockerclient unable to verify the mocks in the current session. %w", err)
+	}
+
+	err = handleNon200Response(resp)
+	if err != nil {
+		return fmt.Errorf("smockerclient unable to verify mocks in current session. %w", err)
+	}
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("smockerclient unable to read response body to verify mocks in current session. %w", err)
+	}
+	defer resp.Body.Close()
+
+	var verifiedResp verifiedResponse
+	err = json.Unmarshal(bodyBytes, &verifiedResp)
+	if err != nil {
+		return fmt.Errorf("smockerclient unable to read json response to verify mocks in current session. %w", err)
+	}
+
+	if !verifiedResp.Mocks.AllUsed {
+		return fmt.Errorf("not all the mocks setup in the current session have been used. smocker response: %s", bodyBytes)
+	}
+
+	if !verifiedResp.History.Verified {
+		return fmt.Errorf("unexpected calls have been made in the current session. smocker response: %s", bodyBytes)
+	}
+
+	return nil
+}
+
+func (i Instance) sendVerifySessionRequest() (*http.Response, error) {
+	request, err := i.createVerifySessionRequest()
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := i.httpClient.Do(request)
+	if err != nil {
+		return nil, fmt.Errorf("unable to send request. %w", err)
+	}
+
+	return response, nil
+}
+
+func (i Instance) createVerifySessionRequest() (*http.Request, error) {
+	url := i.url + "/sessions/verify"
+	request, err := http.NewRequest(http.MethodPost, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return request, nil
+}
+
 func handleNon200Response(resp *http.Response) error {
 	if resp.StatusCode == http.StatusOK {
 		return nil
@@ -193,4 +251,20 @@ func handleNon200Response(resp *http.Response) error {
 
 	return fmt.Errorf("received status:%d and message:%s", resp.StatusCode, body)
 
+}
+
+type verifiedResponse struct {
+	Mocks   verifiedResponseMocks   `json:"mocks"`
+	History verifiedResponseHistory `json:"history"`
+}
+
+type verifiedResponseMocks struct {
+	Verified bool   `json:"verified"`
+	AllUsed  bool   `json:"all_used"`
+	Message  string `json:"message"`
+}
+
+type verifiedResponseHistory struct {
+	Verified bool   `json:"verified"`
+	Message  string `json:"message"`
 }

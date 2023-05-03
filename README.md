@@ -2,7 +2,8 @@
 
 [![GoDoc](https://godoc.org/github.com/churmd/smockerclient?status.svg)](https://pkg.go.dev/github.com/churmd/smockerclient)
 
-A go client to manage [Smocker](https://smocker.dev/) servers.
+A go client to manage [Smocker](https://smocker.dev/) servers by creating sessions, creating mocks and verifying the
+usage of the mocks.
 
 Example:
 
@@ -17,24 +18,42 @@ import (
 )
 
 func main() {
-  instance := smockerclient.DefaultInstance()
+	instance := smockerclient.DefaultInstance()
 
-  // Clear any old sessions and mocks
-  _ = instance.ResetAllSessionsAndMocks()
+	// Clear any old sessions and mocks
+	err := instance.ResetAllSessionsAndMocks()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-  // Start a new session for your new mocks
-  _ = instance.StartSession("SmockerClientSession")
+	// Start a new session for your new mocks
+	err = instance.StartSession("SmockerClientSession")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-  // Add a healthcheck mock
-  request := mock.NewRequestBuilder(http.MethodGet, "/healthcheck").
-    AddHeader("Accept", "application/json").
-    Build()
+	// Add a healthcheck mock
+	request := mock.NewRequestBuilder(http.MethodGet, "/healthcheck").
+		AddHeader("Accept", "application/json").
+		Build()
 
-  response := mock.NewResponseBuilder(http.StatusOK).AddBody(`{"status": "OK"}`).Build()
+	response := mock.NewResponseBuilder(http.StatusOK).AddBody(`{"status": "OK"}`).Build()
 
-  mockDefinition := mock.NewDefinition(request, response)
+	mockDefinition := mock.NewDefinition(request, response)
 
-  _ = instance.AddMock(mockDefinition)
+	err = instance.AddMock(mockDefinition)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Call the healthcheck mock in the code under test
+	someCodeUnderTest()
+
+	// Verify all the mocks were used and no extra requests were made
+	err = instance.VerifyMocksInCurrentSession()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 ```
 
@@ -43,8 +62,11 @@ func main() {
 * `ResetAllSessionsAndMocks` - Clears the Smocker server of all sessions and mocks. Leaving it in a clean state.
 * `StartSession` - Starts a new session on the Smocker server with the given name. New mocks will be added to the latest
   session started.
-* `AddMock` - Adds a new mock to the latest session on the Smocker server. Mocks can be made using the provided builders
+* `AddMock` - Adds a new mock to the current session on the Smocker server. Mocks can be made using the provided
+  builders
   or raw json option detailed below.
+* `VerifyMocksInCurrentSession` - Checks all the mocks in the session have been called and that no other calls have been
+  made
 
 ## Mock Definitions
 

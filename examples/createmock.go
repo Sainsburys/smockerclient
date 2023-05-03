@@ -36,4 +36,26 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Call the healthcheck mock in the code under test
+	someCodeUnderTest()
+
+	// Verify all the mocks were used and no extra requests were made
+	err = instance.VerifyMocksInCurrentSession()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func someCodeUnderTest() {
+	request, err := http.NewRequest(http.MethodGet, "http://localhost:8080/healthcheck", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	request.Header.Add("Accept", "application/json")
+
+	_, err = http.DefaultClient.Do(request)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
