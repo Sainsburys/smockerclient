@@ -3,7 +3,6 @@ package smockerclient
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -197,15 +196,25 @@ func (i Instance) VerifyMocksInLatestSession() error {
 		return err
 	}
 
+	bodyBytes, err := io.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
 	var verifiedResp verifiedResponse
-	err = json.NewDecoder(response.Body).Decode(&verifiedResp)
+	err = json.Unmarshal(bodyBytes, &verifiedResp)
 	if err != nil {
 		// TODO
 		return err
 	}
 
 	if !verifiedResp.Mocks.AllUsed {
-		return errors.New("not all mocks were used")
+		return fmt.Errorf("not all the mocks setup in the current session have used. smocker response: %s", bodyBytes)
+	}
+
+	if !verifiedResp.History.Verified {
+		return fmt.Errorf("unexpected calls have been made in the current session. smocker response: %s", bodyBytes)
 	}
 
 	return nil
@@ -226,11 +235,17 @@ func handleNon200Response(resp *http.Response) error {
 }
 
 type verifiedResponse struct {
-	Mocks verifiedResponseMocks `json:"mocks"`
+	Mocks   verifiedResponseMocks   `json:"mocks"`
+	History verifiedResponseHistory `json:"history"`
 }
 
 type verifiedResponseMocks struct {
 	Verified bool   `json:"verified"`
 	AllUsed  bool   `json:"all_used"`
+	Message  string `json:"message"`
+}
+
+type verifiedResponseHistory struct {
+	Verified bool   `json:"verified"`
 	Message  string `json:"message"`
 }
