@@ -230,7 +230,7 @@ func TestVerifyMocksInLatestSession_WhenAllMocksHaveBeenCalled_ReturnsNoError(t 
 	defer server.Close()
 
 	smockerInstance := smockerclient.NewInstance(server.URL)
-	err := smockerInstance.VerifyMocksInLatestSession()
+	err := smockerInstance.VerifyMocksInCurrentSession()
 
 	assert.NoError(t, err)
 	assert.Equal(t, 1, serverCallCount)
@@ -255,7 +255,7 @@ func TestVerifyMocksInLatestSession_WhenSomeMocksHaveNotBeenCalled_ReturnsError(
 	defer server.Close()
 
 	smockerInstance := smockerclient.NewInstance(server.URL)
-	err := smockerInstance.VerifyMocksInLatestSession()
+	err := smockerInstance.VerifyMocksInCurrentSession()
 
 	assert.Error(t, err)
 	assert.ErrorContains(t, err, "not all the mocks setup in the current session have been used")
@@ -281,7 +281,7 @@ func TestVerifyMocksInLatestSession_WhenSomeMocksHaveNotBeenCalled_AndExtraCalls
 	defer server.Close()
 
 	smockerInstance := smockerclient.NewInstance(server.URL)
-	err := smockerInstance.VerifyMocksInLatestSession()
+	err := smockerInstance.VerifyMocksInCurrentSession()
 
 	assert.Error(t, err)
 	assert.ErrorContains(t, err, "unexpected calls have been made in the current session")
@@ -307,7 +307,7 @@ func TestVerifyMocksInLatestSession_WhenExtraCallsHaveBeenMade_ReturnsError(t *t
 	defer server.Close()
 
 	smockerInstance := smockerclient.NewInstance(server.URL)
-	err := smockerInstance.VerifyMocksInLatestSession()
+	err := smockerInstance.VerifyMocksInCurrentSession()
 
 	assert.Error(t, err)
 	assert.ErrorContains(t, err, "not all the mocks setup in the current session have been used")
@@ -319,7 +319,7 @@ func TestVerifyMocksInLatestSession_WhenServerDoesNotReturn200_ReturnsError(t *t
 	defer server.Close()
 
 	smockerInstance := smockerclient.NewInstance(server.URL)
-	err := smockerInstance.VerifyMocksInLatestSession()
+	err := smockerInstance.VerifyMocksInCurrentSession()
 
 	assert.Equal(t, 1, *serverCallCount)
 	assert.EqualError(t, err, "smockerclient unable to verify mocks in current session. received status:400 and message:400 Bad Request")

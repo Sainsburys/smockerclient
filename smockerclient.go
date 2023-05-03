@@ -181,7 +181,7 @@ func (i Instance) createResetAllSessionAndMocksRequest() (*http.Request, error) 
 	return request, nil
 }
 
-func (i Instance) VerifyMocksInLatestSession() error {
+func (i Instance) VerifyMocksInCurrentSession() error {
 	resp, err := i.sendVerifySessionRequest()
 	if err != nil {
 		return fmt.Errorf("smockerclient unable to verify the mocks in the current session. %w", err)

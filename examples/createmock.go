@@ -41,7 +41,7 @@ func main() {
 	someCodeUnderTest()
 
 	// Verify all the mocks were used and no extra requests were made
-	err = instance.VerifyMocksInLatestSession()
+	err = instance.VerifyMocksInCurrentSession()
 	if err != nil {
 		log.Fatal(err)
 	}
