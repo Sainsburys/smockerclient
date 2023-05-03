@@ -258,7 +258,7 @@ func TestVerifyMocksInLatestSession_WhenSomeMocksHaveNotBeenCalled_ReturnsError(
 	err := smockerInstance.VerifyMocksInLatestSession()
 
 	assert.Error(t, err)
-	assert.ErrorContains(t, err, "not all the mocks setup in the current session have used")
+	assert.ErrorContains(t, err, "not all the mocks setup in the current session have been used")
 	assert.Equal(t, 1, serverCallCount)
 }
 
@@ -310,8 +310,19 @@ func TestVerifyMocksInLatestSession_WhenExtraCallsHaveBeenMade_ReturnsError(t *t
 	err := smockerInstance.VerifyMocksInLatestSession()
 
 	assert.Error(t, err)
-	assert.ErrorContains(t, err, "not all the mocks setup in the current session have used")
+	assert.ErrorContains(t, err, "not all the mocks setup in the current session have been used")
 	assert.Equal(t, 1, serverCallCount)
+}
+
+func TestVerifyMocksInLatestSession_WhenServerDoesNotReturn200_ReturnsError(t *testing.T) {
+	server, serverCallCount := newBadResponseServer()
+	defer server.Close()
+
+	smockerInstance := smockerclient.NewInstance(server.URL)
+	err := smockerInstance.VerifyMocksInLatestSession()
+
+	assert.Equal(t, 1, *serverCallCount)
+	assert.EqualError(t, err, "smockerclient unable to verify mocks in current session. received status:400 and message:400 Bad Request")
 }
 
 func newBadResponseServer() (*httptest.Server, *int) {

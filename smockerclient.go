@@ -182,35 +182,30 @@ func (i Instance) createResetAllSessionAndMocksRequest() (*http.Request, error) 
 }
 
 func (i Instance) VerifyMocksInLatestSession() error {
-
-	url := i.url + "/sessions/verify"
-	request, err := http.NewRequest(http.MethodPost, url, nil)
+	resp, err := i.sendVerifySessionRequest()
 	if err != nil {
-		// TODO
-		return err
+		return fmt.Errorf("smockerclient unable to verify the mocks in the current session. %w", err)
 	}
 
-	response, err := i.httpClient.Do(request)
+	err = handleNon200Response(resp)
 	if err != nil {
-		// TODO
-		return err
+		return fmt.Errorf("smockerclient unable to verify mocks in current session. %w", err)
 	}
 
-	bodyBytes, err := io.ReadAll(response.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return fmt.Errorf("smockerclient unable to read response body to verify mocks in current session. %w", err)
 	}
-	defer response.Body.Close()
+	defer resp.Body.Close()
 
 	var verifiedResp verifiedResponse
 	err = json.Unmarshal(bodyBytes, &verifiedResp)
 	if err != nil {
-		// TODO
-		return err
+		return fmt.Errorf("smockerclient unable to read json response to verify mocks in current session. %w", err)
 	}
 
 	if !verifiedResp.Mocks.AllUsed {
-		return fmt.Errorf("not all the mocks setup in the current session have used. smocker response: %s", bodyBytes)
+		return fmt.Errorf("not all the mocks setup in the current session have been used. smocker response: %s", bodyBytes)
 	}
 
 	if !verifiedResp.History.Verified {
@@ -218,6 +213,30 @@ func (i Instance) VerifyMocksInLatestSession() error {
 	}
 
 	return nil
+}
+
+func (i Instance) sendVerifySessionRequest() (*http.Response, error) {
+	request, err := i.createVerifySessionRequest()
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := i.httpClient.Do(request)
+	if err != nil {
+		return nil, fmt.Errorf("unable to send request. %w", err)
+	}
+
+	return response, nil
+}
+
+func (i Instance) createVerifySessionRequest() (*http.Request, error) {
+	url := i.url + "/sessions/verify"
+	request, err := http.NewRequest(http.MethodPost, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return request, nil
 }
 
 func handleNon200Response(resp *http.Response) error {
