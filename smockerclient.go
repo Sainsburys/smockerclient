@@ -16,24 +16,48 @@ type MockDefinition interface {
 }
 
 type Instance struct {
-	url        string
-	httpClient *http.Client
+	Url        string
+	HttpClient *http.Client
 }
 
+// Deprecated: Use zero value struct initialisation instead, e.g. Instance{}
 // DefaultInstance Creates an instance that will connect to the default smocker server location, http://localhost:8081
 func DefaultInstance() Instance {
 	return Instance{
-		url:        "http://localhost:8081",
-		httpClient: http.DefaultClient,
+		Url:        "http://localhost:8081",
+		HttpClient: http.DefaultClient,
 	}
 }
 
+// Deprecated: Use struct initialisation instead, e.g. Instance{Url: "http://localhost:9090" }
 // NewInstance Creates an instance that will connect to the smocker server using the url provided.
 func NewInstance(url string) Instance {
 	return Instance{
-		url:        url,
-		httpClient: http.DefaultClient,
+		Url:        url,
+		HttpClient: http.DefaultClient,
 	}
+}
+
+// DefaultUrl The default url to use for the smocker admin server
+var DefaultUrl = "http://localhost:8081"
+
+func (i Instance) url() string {
+	if i.Url == "" {
+		return DefaultUrl
+	}
+
+	return i.Url
+}
+
+// DefaultHttpClient The default http client to use to send requests to the smocker server
+var DefaultHttpClient = http.DefaultClient
+
+func (i Instance) httpClient() *http.Client {
+	if i.HttpClient == nil {
+		return DefaultHttpClient
+	}
+
+	return i.HttpClient
 }
 
 // StartSession Starts a new session on the Smocker server with the given name. New mocks will be added to the latest
@@ -58,7 +82,7 @@ func (i Instance) sendStartSessionRequest(name string) (*http.Response, error) {
 		return nil, fmt.Errorf("unable to create request. %w", err)
 	}
 
-	resp, err := i.httpClient.Do(req)
+	resp, err := i.httpClient().Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("unable to send request. %w", err)
 	}
@@ -67,7 +91,7 @@ func (i Instance) sendStartSessionRequest(name string) (*http.Response, error) {
 }
 
 func (i Instance) createSessionRequest(name string) (*http.Request, error) {
-	url := i.url + "/sessions"
+	url := i.url() + "/sessions"
 	req, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
 		return nil, err
@@ -101,7 +125,7 @@ func (i Instance) sendAddMockRequest(mock MockDefinition) (*http.Response, error
 		return nil, fmt.Errorf("unable to create request. %w", err)
 	}
 
-	resp, err := i.httpClient.Do(req)
+	resp, err := i.httpClient().Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("unable to send request. %w", err)
 	}
@@ -115,7 +139,7 @@ func (i Instance) createAddMockRequest(mock MockDefinition) (*http.Request, erro
 		return nil, err
 	}
 
-	url := i.url + "/mocks"
+	url := i.url() + "/mocks"
 	req, err := http.NewRequest(http.MethodPost, url, body)
 	if err != nil {
 		return nil, err
@@ -163,7 +187,7 @@ func (i Instance) sendResetAllSessionsAndMocksRequest() (*http.Response, error) 
 		return nil, fmt.Errorf("unable to create request. %w", err)
 	}
 
-	resp, err := i.httpClient.Do(request)
+	resp, err := i.httpClient().Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("unable to send request. %w", err)
 	}
@@ -172,7 +196,7 @@ func (i Instance) sendResetAllSessionsAndMocksRequest() (*http.Response, error) 
 }
 
 func (i Instance) createResetAllSessionAndMocksRequest() (*http.Request, error) {
-	url := i.url + "/reset"
+	url := i.url() + "/reset"
 	request, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
 		return nil, err
@@ -223,7 +247,7 @@ func (i Instance) sendVerifySessionRequest() (*http.Response, error) {
 		return nil, err
 	}
 
-	response, err := i.httpClient.Do(request)
+	response, err := i.httpClient().Do(request)
 	if err != nil {
 		return nil, fmt.Errorf("unable to send request. %w", err)
 	}
@@ -232,7 +256,7 @@ func (i Instance) sendVerifySessionRequest() (*http.Response, error) {
 }
 
 func (i Instance) createVerifySessionRequest() (*http.Request, error) {
-	url := i.url + "/sessions/verify"
+	url := i.url() + "/sessions/verify"
 	request, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
 		return nil, err
