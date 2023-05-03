@@ -39,7 +39,7 @@ func TestStartSession(t *testing.T) {
 	)
 	defer server.Close()
 
-	smockerInstance := smockerclient.NewInstance(server.URL)
+	smockerInstance := smockerclient.Instance{Url: server.URL}
 	err := smockerInstance.StartSession(sessionName)
 
 	assert.NoError(t, err)
@@ -70,7 +70,7 @@ func TestStartSession_WithNameThatNeedsUrlEscaping(t *testing.T) {
 	)
 	defer server.Close()
 
-	smockerInstance := smockerclient.NewInstance(server.URL)
+	smockerInstance := smockerclient.Instance{Url: server.URL}
 	err := smockerInstance.StartSession(sessionName)
 
 	assert.NoError(t, err)
@@ -83,7 +83,7 @@ func TestStartSession_WhenServerDoesNotReturn200_ReturnsError(t *testing.T) {
 	server, serverCallCount := newBadResponseServer()
 	defer server.Close()
 
-	smockerInstance := smockerclient.NewInstance(server.URL)
+	smockerInstance := smockerclient.Instance{Url: server.URL}
 	err := smockerInstance.StartSession(sessionName)
 
 	assert.Equal(t, 1, *serverCallCount)
@@ -120,7 +120,7 @@ func TestAddMock(t *testing.T) {
 	)
 	defer server.Close()
 
-	smockerInstance := smockerclient.NewInstance(server.URL)
+	smockerInstance := smockerclient.Instance{Url: server.URL}
 	err := smockerInstance.AddMock(fakeMock)
 
 	assert.NoError(t, err)
@@ -141,7 +141,7 @@ func TestAddMock_WhenMockJsonConversionErrors_ReturnsError(t *testing.T) {
 	)
 	defer server.Close()
 
-	smockerInstance := smockerclient.NewInstance(server.URL)
+	smockerInstance := smockerclient.Instance{Url: server.URL}
 	err := smockerInstance.AddMock(fakeMock)
 
 	assert.Equal(t, 0, serverCallCount)
@@ -156,7 +156,7 @@ func TestAddMock_WhenServerDoesNotReturn200_ReturnsError(t *testing.T) {
 	server, serverCallCount := newBadResponseServer()
 	defer server.Close()
 
-	smockerInstance := smockerclient.NewInstance(server.URL)
+	smockerInstance := smockerclient.Instance{Url: server.URL}
 	err := smockerInstance.AddMock(fakeMock)
 
 	assert.Equal(t, 1, *serverCallCount)
@@ -183,7 +183,7 @@ func TestResetAllSessionsAndMocks(t *testing.T) {
 	)
 	defer server.Close()
 
-	smockerInstance := smockerclient.NewInstance(server.URL)
+	smockerInstance := smockerclient.Instance{Url: server.URL}
 	err := smockerInstance.ResetAllSessionsAndMocks()
 
 	assert.NoError(t, err)
@@ -194,7 +194,7 @@ func TestResetAllSessionsAndMocks_WhenServerDoesNotReturn200_ReturnsError(t *tes
 	server, serverCallCount := newBadResponseServer()
 	defer server.Close()
 
-	smockerInstance := smockerclient.NewInstance(server.URL)
+	smockerInstance := smockerclient.Instance{Url: server.URL}
 	err := smockerInstance.ResetAllSessionsAndMocks()
 
 	assert.Equal(t, 1, *serverCallCount)
@@ -229,7 +229,7 @@ func TestVerifyMocksInLatestSession_WhenAllMocksHaveBeenCalled_ReturnsNoError(t 
 	)
 	defer server.Close()
 
-	smockerInstance := smockerclient.NewInstance(server.URL)
+	smockerInstance := smockerclient.Instance{Url: server.URL}
 	err := smockerInstance.VerifyMocksInCurrentSession()
 
 	assert.NoError(t, err)
@@ -254,7 +254,7 @@ func TestVerifyMocksInLatestSession_WhenSomeMocksHaveNotBeenCalled_ReturnsError(
 	)
 	defer server.Close()
 
-	smockerInstance := smockerclient.NewInstance(server.URL)
+	smockerInstance := smockerclient.Instance{Url: server.URL}
 	err := smockerInstance.VerifyMocksInCurrentSession()
 
 	assert.Error(t, err)
@@ -280,7 +280,7 @@ func TestVerifyMocksInLatestSession_WhenSomeMocksHaveNotBeenCalled_AndExtraCalls
 	)
 	defer server.Close()
 
-	smockerInstance := smockerclient.NewInstance(server.URL)
+	smockerInstance := smockerclient.Instance{Url: server.URL}
 	err := smockerInstance.VerifyMocksInCurrentSession()
 
 	assert.Error(t, err)
@@ -306,7 +306,7 @@ func TestVerifyMocksInLatestSession_WhenExtraCallsHaveBeenMade_ReturnsError(t *t
 	)
 	defer server.Close()
 
-	smockerInstance := smockerclient.NewInstance(server.URL)
+	smockerInstance := smockerclient.Instance{Url: server.URL}
 	err := smockerInstance.VerifyMocksInCurrentSession()
 
 	assert.Error(t, err)
@@ -318,7 +318,7 @@ func TestVerifyMocksInLatestSession_WhenServerDoesNotReturn200_ReturnsError(t *t
 	server, serverCallCount := newBadResponseServer()
 	defer server.Close()
 
-	smockerInstance := smockerclient.NewInstance(server.URL)
+	smockerInstance := smockerclient.Instance{Url: server.URL}
 	err := smockerInstance.VerifyMocksInCurrentSession()
 
 	assert.Equal(t, 1, *serverCallCount)

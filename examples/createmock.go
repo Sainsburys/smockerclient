@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	instance := smockerclient.DefaultInstance()
+	instance := smockerclient.Instance{}
 
 	// Clear any old sessions and mocks
 	err := instance.ResetAllSessionsAndMocks()
