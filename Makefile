@@ -11,6 +11,8 @@ coverage:
 	go test ./... -coverprofile=coverage.out
 	go tool cover -html=coverage.out
 
+update_deps:
+	go get -t -u ./...
 
 SMOCKER_VERSION=0.18.2
 
