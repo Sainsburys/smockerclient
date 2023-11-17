@@ -14,7 +14,7 @@ coverage:
 update_deps:
 	go get -t -u ./...
 
-SMOCKER_VERSION=0.18.2
+SMOCKER_VERSION=0.18.5
 
 start-smocker:
 	docker run -d \
