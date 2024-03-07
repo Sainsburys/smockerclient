@@ -3,7 +3,7 @@ package smockerclient_test
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -33,7 +33,8 @@ func TestStartSession(t *testing.T) {
 					"id": "1d6d264b-4d13-4e0b-a51e-e44fc80eca9f",
 					"name": "` + sessionName + `"
 				  }`
-				w.Write([]byte(resp))
+				_, err := w.Write([]byte(resp))
+				assert.NoError(t, err, "httptest server write failed")
 			},
 		),
 	)
@@ -64,7 +65,8 @@ func TestStartSession_WithNameThatNeedsUrlEscaping(t *testing.T) {
 					"id": "1d6d264b-4d13-4e0b-a51e-e44fc80eca9f",
 					"name": "` + sessionName + `"
 				  }`
-				w.Write([]byte(resp))
+				_, err := w.Write([]byte(resp))
+				assert.NoError(t, err, "httptest server write failed")
 			},
 		),
 	)
@@ -80,7 +82,7 @@ func TestStartSession_WithNameThatNeedsUrlEscaping(t *testing.T) {
 func TestStartSession_WhenServerDoesNotReturn200_ReturnsError(t *testing.T) {
 	sessionName := "my-new-session"
 
-	server, serverCallCount := newBadResponseServer()
+	server, serverCallCount := newBadResponseServer(t)
 	defer server.Close()
 
 	smockerInstance := smockerclient.Instance{Url: server.URL}
@@ -107,14 +109,15 @@ func TestAddMock(t *testing.T) {
 				contentType := r.Header.Get("Content-Type")
 				assert.Equal(t, jsonContentType, contentType)
 
-				body, err := ioutil.ReadAll(r.Body)
+				body, err := io.ReadAll(r.Body)
 				assert.NoError(t, err)
 				assert.JSONEq(t, expectedJson, string(body))
 
 				resp := `{
 					"message": "Mocks registered successfully"
 				  }`
-				w.Write([]byte(resp))
+				_, err = w.Write([]byte(resp))
+				assert.NoError(t, err, "httptest server write failed")
 			},
 		),
 	)
@@ -153,7 +156,7 @@ func TestAddMock_WhenServerDoesNotReturn200_ReturnsError(t *testing.T) {
 	expectedJson := `{"example": 1234}`
 	fakeMock := FakeMock{Json: expectedJson}
 
-	server, serverCallCount := newBadResponseServer()
+	server, serverCallCount := newBadResponseServer(t)
 	defer server.Close()
 
 	smockerInstance := smockerclient.Instance{Url: server.URL}
@@ -177,7 +180,8 @@ func TestResetAllSessionsAndMocks(t *testing.T) {
 				resp := `{
 			  		"message": "Reset successful"
 				}`
-				w.Write([]byte(resp))
+				_, err := w.Write([]byte(resp))
+				assert.NoError(t, err, "httptest server write failed")
 			},
 		),
 	)
@@ -191,7 +195,7 @@ func TestResetAllSessionsAndMocks(t *testing.T) {
 }
 
 func TestResetAllSessionsAndMocks_WhenServerDoesNotReturn200_ReturnsError(t *testing.T) {
-	server, serverCallCount := newBadResponseServer()
+	server, serverCallCount := newBadResponseServer(t)
 	defer server.Close()
 
 	smockerInstance := smockerclient.Instance{Url: server.URL}
@@ -223,7 +227,8 @@ func TestVerifyMocksInLatestSession_WhenAllMocksHaveBeenCalled_ReturnsNoError(t 
 					"message": "History is clean"
 				  }
 				}`
-				w.Write([]byte(resp))
+				_, err := w.Write([]byte(resp))
+				assert.NoError(t, err, "httptest server write failed")
 			},
 		),
 	)
@@ -248,7 +253,8 @@ func TestVerifyMocksInLatestSession_WhenSomeMocksHaveNotBeenCalled_ReturnsError(
 				assert.Equal(t, "/sessions/verify", r.URL.Path)
 
 				resp := getVerifyBodyWhenSomeMocksAreNotCalled()
-				w.Write([]byte(resp))
+				_, err := w.Write([]byte(resp))
+				assert.NoError(t, err, "httptest server write failed")
 			},
 		),
 	)
@@ -274,7 +280,8 @@ func TestVerifyMocksInLatestSession_WhenSomeMocksHaveNotBeenCalled_AndExtraCalls
 				assert.Equal(t, "/sessions/verify", r.URL.Path)
 
 				resp := getVerifyBodyWhenExtraCallsHaveBeenMade()
-				w.Write([]byte(resp))
+				_, err := w.Write([]byte(resp))
+				assert.NoError(t, err, "httptest server write failed")
 			},
 		),
 	)
@@ -300,7 +307,8 @@ func TestVerifyMocksInLatestSession_WhenExtraCallsHaveBeenMade_ReturnsError(t *t
 				assert.Equal(t, "/sessions/verify", r.URL.Path)
 
 				resp := getVerifyBodyWhenSomeMocksAreNotCalledAndExtraCallsMade()
-				w.Write([]byte(resp))
+				_, err := w.Write([]byte(resp))
+				assert.NoError(t, err, "httptest server write failed")
 			},
 		),
 	)
@@ -315,7 +323,7 @@ func TestVerifyMocksInLatestSession_WhenExtraCallsHaveBeenMade_ReturnsError(t *t
 }
 
 func TestVerifyMocksInLatestSession_WhenServerDoesNotReturn200_ReturnsError(t *testing.T) {
-	server, serverCallCount := newBadResponseServer()
+	server, serverCallCount := newBadResponseServer(t)
 	defer server.Close()
 
 	smockerInstance := smockerclient.Instance{Url: server.URL}
@@ -325,7 +333,7 @@ func TestVerifyMocksInLatestSession_WhenServerDoesNotReturn200_ReturnsError(t *t
 	assert.EqualError(t, err, "smockerclient unable to verify mocks in current session. received status:400 and message:400 Bad Request")
 }
 
-func newBadResponseServer() (*httptest.Server, *int) {
+func newBadResponseServer(t *testing.T) (*httptest.Server, *int) {
 	serverCallCount := 0
 
 	server := httptest.NewServer(
@@ -333,7 +341,8 @@ func newBadResponseServer() (*httptest.Server, *int) {
 			func(w http.ResponseWriter, r *http.Request) {
 				serverCallCount++
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("400 Bad Request"))
+				_, err := w.Write([]byte("400 Bad Request"))
+				assert.NoError(t, err, "httptest server write failed")
 			},
 		),
 	)
