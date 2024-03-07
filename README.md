@@ -59,14 +59,14 @@ func main() {
 
 ## Functions
 
-* `ResetAllSessionsAndMocks` - Clears the Smocker server of all sessions and mocks. Leaving it in a clean state.
-* `StartSession` - Starts a new session on the Smocker server with the given name. New mocks will be added to the latest
-  session started.
-* `AddMock` - Adds a new mock to the current session on the Smocker server. Mocks can be made using the provided
-  builders
-  or raw json option detailed below.
-* `VerifyMocksInCurrentSession` - Checks all the mocks in the session have been called and that no other calls have been
-  made
+-   `ResetAllSessionsAndMocks` - Clears the Smocker server of all sessions and mocks. Leaving it in a clean state.
+-   `StartSession` - Starts a new session on the Smocker server with the given name. New mocks will be added to the latest
+    session started.
+-   `AddMock` - Adds a new mock to the current session on the Smocker server. Mocks can be made using the provided
+    builders
+    or raw json option detailed below.
+-   `VerifyMocksInCurrentSession` - Checks all the mocks in the session have been called and that no other calls have been
+    made
 
 ## Mock Definitions
 
@@ -116,3 +116,8 @@ mockJson := `
 }`
 mockDefinition := mock.NewRawJsonDefinition(mockJson)
 ```
+
+## Development Tools
+
+-   Docker
+-   [golangci-lint](https://golangci-lint.run/)
