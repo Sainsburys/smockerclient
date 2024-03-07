@@ -121,3 +121,4 @@ mockDefinition := mock.NewRawJsonDefinition(mockJson)
 
 -   Docker
 -   [golangci-lint](https://golangci-lint.run/)
+-   [govulncheck](https://go.dev/blog/govulncheck)
