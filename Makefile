@@ -14,6 +14,9 @@ coverage:
 update_deps:
 	go get -t -u ./...
 
+lint:
+	golangci-lint run
+
 SMOCKER_VERSION=0.18.5
 
 start-smocker:
