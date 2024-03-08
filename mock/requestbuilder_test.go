@@ -75,8 +75,9 @@ func TestNewRequestBuilder_AddQueryParam_Build(t *testing.T) {
 
 func TestNewRequestBuilder_AddHeader_Build(t *testing.T) {
 	expectedHeaders := map[string][]string{
-		"Content-Type":  {"application/json", "application/vnd.api+json"},
-		"Authorization": {"Bearer sv2361fr1o8ph3oin"},
+		"Content-Type":            {"application/json", "application/vnd.api+json"},
+		"Authorization":           {"Bearer sv2361fr1o8ph3oin"},
+		"Canonical-Header-Format": {"some-value"},
 	}
 	expectedRequest := mock.Request{
 		Method:  http.MethodPut,
@@ -87,6 +88,7 @@ func TestNewRequestBuilder_AddHeader_Build(t *testing.T) {
 	requestBuilder := mock.NewRequestBuilder(http.MethodPut, "/foo/bar")
 	requestBuilder.AddHeader("Content-Type", "application/json", "application/vnd.api+json")
 	requestBuilder.AddHeader("Authorization", "Bearer sv2361fr1o8ph3oin")
+	requestBuilder.AddHeader("canonical-header-FORMAT", "some-value")
 	request := requestBuilder.Build()
 
 	assert.Equal(t, expectedRequest, request)
