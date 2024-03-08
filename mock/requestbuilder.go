@@ -2,6 +2,7 @@ package mock
 
 import (
 	"encoding/base64"
+	"net/http"
 )
 
 type RequestBuilder struct {
@@ -57,9 +58,14 @@ func createBasicToken(username string, password string) string {
 	return basicToken
 }
 
+// AddHeader Sets a request header key and values to match against on the mock definition
+//
+// Note: the header key will be formatted to [http.CanonicalHeaderKey] as smocker is case-sensitive regarding header
+// keys, this will help prevent mock expectations not matching as Go's standard http library uses the Canonical format.
 func (rb RequestBuilder) AddHeader(key string, values ...string) RequestBuilder {
 	rb.initialiseHeaders()
-	rb.request.Headers[key] = values
+	canonicalHeaderKey := http.CanonicalHeaderKey(key)
+	rb.request.Headers[canonicalHeaderKey] = values
 
 	return rb
 }
