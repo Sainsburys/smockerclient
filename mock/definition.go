@@ -21,16 +21,27 @@ type Response struct {
 	Body    string              `json:"body,omitempty"`
 }
 
+type Context struct {
+	Times int `json:"times"`
+}
+
 type Definition struct {
 	Request  Request  `json:"request"`
 	Response Response `json:"response"`
+	Context  *Context `json:"context,omitempty"`
 }
 
-func NewDefinition(req Request, resp Response) Definition {
-	return Definition{
+func NewDefinition(req Request, resp Response, context *Context) Definition {
+	def := Definition{
 		Request:  req,
 		Response: resp,
 	}
+
+	if context != nil {
+		def.Context = context
+	}
+
+	return def
 }
 
 func (d Definition) ToMockDefinitionJson() ([]byte, error) {

@@ -1,16 +1,16 @@
 package mock_test
 
 import (
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 
 	"github.com/churmd/smockerclient/mock"
 )
 
 func TestDefinition_ToMockJson(t *testing.T) {
-	expectedJson := `{
+	t.Run("With no Context", func(t *testing.T) {
+		expectedJson := `{
 		"request": {
 			"method": "PUT",
 			"path": "/foo/bar",
@@ -36,14 +36,57 @@ func TestDefinition_ToMockJson(t *testing.T) {
 		}
 	}`
 
-	request := createRequest()
-	response := createResponse()
-	definition := mock.NewDefinition(request, response)
+		request := createRequest()
+		response := createResponse()
+		definition := mock.NewDefinition(request, response, nil)
 
-	actualJson, err := definition.ToMockDefinitionJson()
+		actualJson, err := definition.ToMockDefinitionJson()
 
-	assert.NoError(t, err)
-	assert.JSONEq(t, expectedJson, string(actualJson))
+		assert.NoError(t, err)
+		assert.JSONEq(t, expectedJson, string(actualJson))
+	})
+
+	t.Run("With Context", func(t *testing.T) {
+		expectedJson := `{
+		"request": {
+			"method": "PUT",
+			"path": "/foo/bar",
+			"query_params": {
+			   "limit": ["10"],
+			   "filters": ["red", "green"]
+			},
+			"headers": {
+				"Content-Type": ["application/json", "application/vnd.api+json"],
+				"Authorization": ["Bearer sv2361fr1o8ph3oin"]
+			},
+			"body": {
+				"matcher": "ShouldEqualJSON",
+				"value": "{\"name\": \"John Smith\", \"uuid\": \"daa7b90d-9429-4d7a-9304-edc41ff44a6d\", \"rank\": 10}"
+			}
+		},
+		"context": {
+			"times": 3
+		},
+		"response": {
+			"status": 200,
+			"headers": {
+				"Content-Type": ["application/json"]
+			},
+			"body": "{\"status\": \"OK\"}"
+		}
+	}`
+
+		request := createRequest()
+		response := createResponse()
+		context := createContext()
+		definition := mock.NewDefinition(request, response, context)
+
+		actualJson, err := definition.ToMockDefinitionJson()
+
+		assert.NoError(t, err)
+		assert.JSONEq(t, expectedJson, string(actualJson))
+	})
+
 }
 
 func createRequest() mock.Request {
@@ -78,4 +121,8 @@ func createResponse() mock.Response {
 		Body: "{\"status\": \"OK\"}",
 	}
 	return response
+}
+
+func createContext() *mock.Context {
+	return &mock.Context{Times: 3}
 }

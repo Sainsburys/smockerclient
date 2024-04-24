@@ -30,7 +30,9 @@ func main() {
 
 	response := mock.NewResponseBuilder(http.StatusOK).AddBody(`{"status": "OK"}`).Build()
 
-	mockDefinition := mock.NewDefinition(request, response)
+	limit := mock.NewMockCallLimit(3)
+
+	mockDefinition := mock.NewDefinition(request, response, limit)
 
 	err = instance.AddMock(mockDefinition)
 	if err != nil {
