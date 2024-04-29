@@ -22,7 +22,7 @@ type Response struct {
 }
 
 type Context struct {
-	Times int `json:"times"`
+	Times int `json:"times,omitempty"`
 }
 
 type Definition struct {
@@ -31,10 +31,15 @@ type Definition struct {
 	Context  *Context `json:"context,omitempty"`
 }
 
-func NewDefinition(req Request, resp Response, context *Context) Definition {
+func NewDefinition(req Request, resp Response, contextOptions ...ContextOption) Definition {
 	def := Definition{
 		Request:  req,
 		Response: resp,
+	}
+
+	var context *Context
+	for _, fn := range contextOptions {
+		context = fn(context)
 	}
 
 	if context != nil {

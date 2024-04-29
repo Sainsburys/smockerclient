@@ -38,7 +38,7 @@ func TestDefinition_ToMockJson(t *testing.T) {
 
 		request := createRequest()
 		response := createResponse()
-		definition := mock.NewDefinition(request, response, nil)
+		definition := mock.NewDefinition(request, response)
 
 		actualJson, err := definition.ToMockDefinitionJson()
 
@@ -78,8 +78,7 @@ func TestDefinition_ToMockJson(t *testing.T) {
 
 		request := createRequest()
 		response := createResponse()
-		context := createContext()
-		definition := mock.NewDefinition(request, response, context)
+		definition := mock.NewDefinition(request, response, mock.WithCallLimit(3))
 
 		actualJson, err := definition.ToMockDefinitionJson()
 
@@ -121,8 +120,4 @@ func createResponse() mock.Response {
 		Body: "{\"status\": \"OK\"}",
 	}
 	return response
-}
-
-func createContext() *mock.Context {
-	return &mock.Context{Times: 3}
 }
