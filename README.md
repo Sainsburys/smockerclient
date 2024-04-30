@@ -39,9 +39,7 @@ func main() {
 
 	response := mock.NewResponseBuilder(http.StatusOK).AddBody(`{"status": "OK"}`).Build()
 	
-	limit := mock.NewMockCallLimit(3)
-
-	mockDefinition := mock.NewDefinition(request, response, limit)
+	mockDefinition := mock.NewDefinition(request, response)
 
 	err = instance.AddMock(mockDefinition)
 	if err != nil {
@@ -91,10 +89,10 @@ response := mock.NewResponseBuilder(http.StatusOK).
     AddHeader("Content-Type", "application/json").
     Build()
 
-mockDefinition := mock.NewDefinition(request, response, nil)
+mockDefinition := mock.NewDefinition(request, response)
 ```
 
-You can also include a limit on how many times a mock can be called using the `NewMockCallLimit` function.
+You can also include a limit on how many times a mock can be called using the `WithCallLimit` option function.
 
 ```go
 request := mock.NewRequestBuilder(http.MethodPut, "/foo/bar").
@@ -110,9 +108,7 @@ AddBody(`{"status": "OK"}`).
 AddHeader("Content-Type", "application/json").
 Build()
 
-limit := mock.NewMockCallLimit(5)
-
-mockDefinition := mock.NewDefinition(request, response, limit)
+mockDefinition := mock.NewDefinition(request, response, mock.WithCallLimit(3))
 ```
 
 ### Raw Json
