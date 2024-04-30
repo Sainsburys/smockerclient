@@ -22,7 +22,7 @@ type Response struct {
 }
 
 type Context struct {
-	Times int `json:"times,omitempty"`
+	Times int `json:"times"`
 }
 
 type Definition struct {
