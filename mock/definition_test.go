@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/churmd/smockerclient/mock"
+	"github.com/Sainsburys/smockerclient/mock"
 )
 
 func TestDefinition_ToMockJson(t *testing.T) {

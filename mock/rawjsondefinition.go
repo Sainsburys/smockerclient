@@ -1,6 +1,6 @@
 package mock
 
-import "github.com/churmd/smockerclient"
+import "github.com/Sainsburys/smockerclient"
 
 type RawJsonDefinition struct {
 	json string

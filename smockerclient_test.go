@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/churmd/smockerclient"
+	"github.com/Sainsburys/smockerclient"
 )
 
 const jsonContentType = "application/json"

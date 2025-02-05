@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/churmd/smockerclient/mock"
+	"github.com/Sainsburys/smockerclient/mock"
 )
 
 func TestRawJsonDefinition_ToMockJson(t *testing.T) {

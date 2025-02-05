@@ -1,7 +1,7 @@
 package mock_test
 
 import (
-	"github.com/churmd/smockerclient/mock"
+	"github.com/Sainsburys/smockerclient/mock"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
