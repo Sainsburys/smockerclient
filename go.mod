@@ -1,4 +1,4 @@
-module github.com/churmd/smockerclient
+module github.com/Sainsburys/smockerclient
 
 go 1.22
 

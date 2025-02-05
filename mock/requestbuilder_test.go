@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/churmd/smockerclient/mock"
+	"github.com/Sainsburys/smockerclient/mock"
 )
 
 func TestRequestBuilder_Build(t *testing.T) {

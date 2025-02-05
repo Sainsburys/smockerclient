@@ -1,6 +1,6 @@
 # smocker-client
 
-[![GoDoc](https://godoc.org/github.com/churmd/smockerclient?status.svg)](https://pkg.go.dev/github.com/churmd/smockerclient)
+[![GoDoc](https://godoc.org/github.com/Sainsburys/smockerclient?status.svg)](https://pkg.go.dev/github.com/Sainsburys/smockerclient)
 
 A go client to manage [Smocker](https://smocker.dev/) servers by creating sessions, creating mocks and verifying the
 usage of the mocks.
@@ -13,8 +13,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/churmd/smockerclient"
-	"github.com/churmd/smockerclient/mock"
+	"github.com/Sainsburys/smockerclient"
+	"github.com/Sainsburys/smockerclient/mock"
 )
 
 func main() {

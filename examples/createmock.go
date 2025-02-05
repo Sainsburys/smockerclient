@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/churmd/smockerclient"
-	"github.com/churmd/smockerclient/mock"
+	"github.com/Sainsburys/smockerclient"
+	"github.com/Sainsburys/smockerclient/mock"
 )
 
 func main() {
